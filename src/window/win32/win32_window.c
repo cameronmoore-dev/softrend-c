@@ -99,7 +99,7 @@ void window_swap_buffers(platform_context *context, sr_window *window)
 
     EndPaint(context->window, &paint);
 
-    window_pump_messages(context);
+    window_pump_messages(context, window);
 }
 
 void window_cleanup(platform_context *context, sr_window *window)
@@ -124,7 +124,7 @@ void window_close(sr_window *window)
     window->isOpen = false;
 }
 
-void window_pump_messages(platform_context *context)
+void window_pump_messages(platform_context *context, sr_window *window)
 {
     MSG msg = {};
     while (PeekMessage(&msg, context->window, 0, 0, PM_REMOVE))
