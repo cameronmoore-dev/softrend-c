@@ -8,7 +8,7 @@ typedef struct sr_backbuffer
 {
     u32 width;
     u32 height;
-    u32 *buffer;
+    u32 *data;
 } sr_backbuffer;
 
 typedef struct sr_window

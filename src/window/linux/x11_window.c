@@ -137,9 +137,18 @@ sr_window *window_create(platform_context *context, const char *title, u32 width
 void window_swap_buffers(platform_context *context, sr_window *window)
 {
     if (window->frontbuffer && 
-        window->backbuffer->buffer)
+        window->backbuffer->data)
     {
-        memcpy(window->frontbuffer, window->backbuffer->buffer, window->backbuffer->width * window->backbuffer->height * sizeof(u32));
+        for (u32 i = 0; i < window->backbuffer->width * window->backbuffer->height; i++)
+        {
+            window->backbuffer->data[i] = 0x111111;
+        }
+
+        memcpy(
+            window->frontbuffer, window->backbuffer->data, 
+            window->backbuffer->width * window->backbuffer->height * sizeof(u32)
+        );
+
         xcb_put_image(
             context->connection, XCB_IMAGE_FORMAT_Z_PIXMAP, 
             context->window, context->gid, 
@@ -147,7 +156,7 @@ void window_swap_buffers(platform_context *context, sr_window *window)
             0, 0, 
             0, context->screen->root_depth, 
             window->width * window->height * sizeof(u32),
-            (u8 *)window->frontbuffer
+            (const u8 *)window->frontbuffer
         );
         xcb_flush(context->connection);
     }
@@ -163,7 +172,7 @@ void window_cleanup(platform_context *context, sr_window *window)
     udev_unref(context->udevice);
     udev_monitor_unref(context->umonitor);
 
-    free(window->backbuffer->buffer);
+    free(window->backbuffer->data);
     free(window->backbuffer);
     free(window);
     free(context);
@@ -223,13 +232,13 @@ void window_on_resize(platform_context *context, sr_window *window, xcb_configur
     window->height = cfg->height;
 
     free(window->frontbuffer);
-    free(window->backbuffer->buffer);
+    free(window->backbuffer->data);
     window->frontbuffer = malloc(cfg->width * cfg->height * sizeof(u32));
-    window->backbuffer->buffer = malloc(cfg->width * cfg->height * sizeof(u32));
+    window->backbuffer->data = malloc(cfg->width * cfg->height * sizeof(u32));
     window->backbuffer->width  = cfg->width;
     window->backbuffer->height = cfg->height;
 
-    memset(window->backbuffer->buffer, 0x111111, cfg->width * cfg->height * sizeof(u32));
+    memset(window->backbuffer->data, 0xFF00FFFF, cfg->width * cfg->height * sizeof(u32));
 }
 
 xcb_atom_t _xcb_intern_atom(xcb_connection_t *connection, const char *atom_name)
