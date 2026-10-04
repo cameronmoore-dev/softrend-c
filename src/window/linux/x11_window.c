@@ -36,37 +36,43 @@ typedef struct platform_context
     xcb_gcontext_t gid;
 } platform_context;
 
-void window_on_resize(platform_context *context, sr_window *window, xcb_configure_notify_event_t *cfg);
+void window_on_resize(sr_window *window, xcb_configure_notify_event_t *cfg);
 xcb_atom_t _xcb_intern_atom(xcb_connection_t *connection, const char *atom_name);
 
-platform_context *window_create_platform_context()
+sr_window *window_create(const char *title, u32 width, u32 height)
 {
-    return malloc(sizeof(platform_context));
-}
+    sr_window *wnd  = (sr_window *)malloc(sizeof(sr_window));
+    wnd->platform   = (platform_context *)malloc(sizeof(platform_context));
+    wnd->backbuffer = (sr_backbuffer *)malloc(sizeof(sr_backbuffer));
+    wnd->title  = title;
+    wnd->width  = width;
+    wnd->height = height;
+    wnd->isOpen = true;
 
-sr_window *window_create(platform_context *context, const char *title, u32 width, u32 height)
-{
-    context->display = XOpenDisplay(NULL);
-    XAutoRepeatOff(context->display);
+    wnd->backbuffer->width  = width;
+    wnd->backbuffer->height = height;
 
-    context->connection = XGetXCBConnection(context->display);
-    if (xcb_connection_has_error(context->connection))
+    wnd->platform->display = XOpenDisplay(NULL);
+    // XAutoRepeatOff(wnd->platform->display);
+
+    wnd->platform->connection = XGetXCBConnection(wnd->platform->display);
+    if (xcb_connection_has_error(wnd->platform->connection))
     {
         printf("Connection Error!\n");
         return NULL;
     }
 
-    XSetEventQueueOwner(context->display, XCBOwnsEventQueue);
+    XSetEventQueueOwner(wnd->platform->display, XCBOwnsEventQueue);
 
-    const struct xcb_setup_t *setup = xcb_get_setup(context->connection);
+    const struct xcb_setup_t *setup = xcb_get_setup(wnd->platform->connection);
     xcb_screen_iterator_t it = xcb_setup_roots_iterator(setup);
     for (s32 i = 0; i > 0; i--)
     {
         xcb_screen_next(&it);
     }
 
-    context->screen = it.data;
-    context->window = xcb_generate_id(context->connection);
+    wnd->platform->screen = it.data;
+    wnd->platform->window = xcb_generate_id(wnd->platform->connection);
 
     u32 event_mask = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
     u32 event_values = 
@@ -76,137 +82,139 @@ sr_window *window_create(platform_context *context, const char *title, u32 width
         XCB_EVENT_MASK_STRUCTURE_NOTIFY;
     u32 value_list[] = 
     {
-        context->screen->black_pixel, 
+        wnd->platform->screen->black_pixel, 
         event_values 
     };
 
     xcb_void_cookie_t window = xcb_create_window(
-        context->connection,
+        wnd->platform->connection,
         XCB_COPY_FROM_PARENT,
-        context->window,
-        context->screen->root,
+        wnd->platform->window,
+        wnd->platform->screen->root,
         0, 0,
         width, height,
         0,
         XCB_WINDOW_CLASS_INPUT_OUTPUT,
-        context->screen->root_visual,
+        wnd->platform->screen->root_visual,
         event_mask,
         value_list
     );
 
     xcb_change_property(
-        context->connection, 
+        wnd->platform->connection, 
         XCB_PROP_MODE_REPLACE, 
-        context->window, 
+        wnd->platform->window, 
         XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 
         8, strlen(title), title
     );
 
-    context->wm_deleteWindow = _xcb_intern_atom(context->connection, "WM_DELETE_WINDOW");
-    xcb_atom_t proto = _xcb_intern_atom(context->connection, "WM_PROTOCOLS");
+    wnd->platform->wm_deleteWindow = _xcb_intern_atom(wnd->platform->connection, "WM_DELETE_WINDOW");
+    xcb_atom_t proto = _xcb_intern_atom(wnd->platform->connection, "WM_PROTOCOLS");
     xcb_change_property(
-        context->connection,
+        wnd->platform->connection,
         XCB_PROP_MODE_REPLACE,
-        context->window, proto,
+        wnd->platform->window, proto,
         4, 32, 1,
-        &context->wm_deleteWindow
+        &wnd->platform->wm_deleteWindow
     );
 
-    xcb_map_window(context->connection, context->window);
-    xcb_flush(context->connection);
+    xcb_map_window(wnd->platform->connection, wnd->platform->window);
+    xcb_flush(wnd->platform->connection);
 
-    context->udevice = udev_new();
-    context->umonitor = udev_monitor_new_from_netlink(context->udevice, "udev");
-    udev_monitor_filter_add_match_subsystem_devtype(context->umonitor, "input", NULL);
-    udev_monitor_enable_receiving(context->umonitor);
+    wnd->platform->udevice = udev_new();
+    wnd->platform->umonitor = udev_monitor_new_from_netlink(wnd->platform->udevice, "udev");
+    udev_monitor_filter_add_match_subsystem_devtype(wnd->platform->umonitor, "input", NULL);
+    udev_monitor_enable_receiving(wnd->platform->umonitor);
 
-    sr_window *wnd = malloc(sizeof(sr_window));
-    memset(wnd, 0, sizeof(sr_window));
-    wnd->backbuffer = malloc(sizeof(sr_backbuffer));
-    wnd->title  = title;
-    wnd->width  = width;
-    wnd->height = height;
-    wnd->isOpen = true;
-
-    context->gid = xcb_generate_id(context->connection);
-    xcb_create_gc(context->connection, context->gid, context->window, 0, NULL);
+    wnd->platform->gid = xcb_generate_id(wnd->platform->connection);
+    xcb_create_gc(wnd->platform->connection, wnd->platform->gid, wnd->platform->window, 0, NULL);
 
     return wnd;
 }
 
-void window_swap_buffers(platform_context *context, sr_window *window)
+void window_swap_buffers(sr_window *window)
 {
     if (window->frontbuffer && 
         window->backbuffer->data)
     {
-        for (u32 i = 0; i < window->backbuffer->width * window->backbuffer->height; i++)
+        u32 buffer_size = window->backbuffer->width * window->backbuffer->height;
+        u32 buffer_size_bytes = (window->backbuffer->width * window->backbuffer->height) * sizeof(u32);
+        for (u32 i = 0; i < buffer_size; i++)
         {
             window->backbuffer->data[i] = 0x111111;
         }
 
         memcpy(
             window->frontbuffer, window->backbuffer->data, 
-            window->backbuffer->width * window->backbuffer->height * sizeof(u32)
+            buffer_size_bytes
         );
 
         xcb_put_image(
-            context->connection, XCB_IMAGE_FORMAT_Z_PIXMAP, 
-            context->window, context->gid, 
+            window->platform->connection, XCB_IMAGE_FORMAT_Z_PIXMAP, 
+            window->platform->window, window->platform->gid, 
             window->width, window->height, 
             0, 0, 
-            0, context->screen->root_depth, 
-            window->width * window->height * sizeof(u32),
+            0, window->platform->screen->root_depth, 
+            buffer_size_bytes,
             (const u8 *)window->frontbuffer
         );
-        xcb_flush(context->connection);
-    }
 
-    window_pump_messages(context, window);
+        xcb_flush(window->platform->connection);
+    }
 }
 
-void window_cleanup(platform_context *context, sr_window *window)
+void window_cleanup(sr_window *window)
 {
-    XAutoRepeatOn(context->display);
-    xcb_destroy_window(context->connection, context->window);
-    xcb_free_gc(context->connection, context->gid);
-    udev_unref(context->udevice);
-    udev_monitor_unref(context->umonitor);
+    XAutoRepeatOn(window->platform->display);
+    xcb_destroy_window(window->platform->connection, window->platform->window);
+    xcb_free_gc(window->platform->connection, window->platform->gid);
+    udev_unref(window->platform->udevice);
+    udev_monitor_unref(window->platform->umonitor);
 
     free(window->backbuffer->data);
     free(window->backbuffer);
+    free(window->frontbuffer);
+    free(window->platform);
     free(window);
-    free(context);
 }
 
-void window_pump_messages(platform_context *context, sr_window *window)
+void window_pump_messages(sr_window *window)
 {
     xcb_generic_event_t *event;
-    while (event = xcb_poll_for_event(context->connection))
+    while (event = xcb_poll_for_event(window->platform->connection))
     {
-        if (!event)
-        {
-            break;
-        }
-
         switch (event->response_type & ~0x80)
         {
             case XCB_CLIENT_MESSAGE:
             {
                 xcb_client_message_event_t *client = (xcb_client_message_event_t *)event;
-                if (client->data.data32[0] == context->wm_deleteWindow)
+                if (client->data.data32[0] == window->platform->wm_deleteWindow)
                 {
                     window_close(window);
                 }
-            } break;
+                break;
+            } 
 
             case XCB_CONFIGURE_NOTIFY:
             {
                 xcb_configure_notify_event_t *cfg = (xcb_configure_notify_event_t *)event;
-                window_on_resize(context, window, cfg);
-            } break;
+                window_on_resize(window, cfg);
+                break;  
+            } 
 
             case XCB_MOTION_NOTIFY:
             {
+            } break;
+
+            case XCB_KEY_PRESS:
+            {
+                xcb_key_press_event_t *kp = (xcb_key_press_event_t *)event;
+                xcb_keycode_t code = kp->detail;
+                KeySym key = XkbKeycodeToKeysym(window->platform->display, (KeyCode)code, 0, 1);
+                if (key == XK_Escape)
+                {
+                    window_close(window);
+                }
             } break;
 
             default: break;
@@ -226,19 +234,17 @@ void window_close(sr_window *window)
     window->isOpen = false;
 }
 
-void window_on_resize(platform_context *context, sr_window *window, xcb_configure_notify_event_t *cfg)
+void window_on_resize(sr_window *window, xcb_configure_notify_event_t *cfg)
 {
     window->width  = cfg->width;
     window->height = cfg->height;
 
-    free(window->frontbuffer);
-    free(window->backbuffer->data);
-    window->frontbuffer = malloc(cfg->width * cfg->height * sizeof(u32));
-    window->backbuffer->data = malloc(cfg->width * cfg->height * sizeof(u32));
+    if (window->frontbuffer)        free(window->frontbuffer);
+    if (window->backbuffer->data)   free(window->backbuffer->data);
+    window->frontbuffer = (u32 *)malloc(cfg->width * cfg->height * sizeof(u32));
+    window->backbuffer->data = (u32 *)malloc(cfg->width * cfg->height * sizeof(u32));
     window->backbuffer->width  = cfg->width;
     window->backbuffer->height = cfg->height;
-
-    memset(window->backbuffer->data, 0xFF00FFFF, cfg->width * cfg->height * sizeof(u32));
 }
 
 xcb_atom_t _xcb_intern_atom(xcb_connection_t *connection, const char *atom_name)

@@ -8,6 +8,9 @@ set(CMAKE_C_EXTENSIONS False)
 
 add_executable(softrend-c
     src/app/entry.c
+    src/app/app_context.c
+    src/app/scene_manager.c
+    src/app/scenes/scn_triangle.c
     
     src/utils/stack.c
 )
