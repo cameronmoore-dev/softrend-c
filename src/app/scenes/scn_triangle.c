@@ -1,40 +1,35 @@
 #include "app/scenes/scn_triangle.h"
 
-#include "app/app_context.h"
-
 #include <stdio.h>
 
-scn_triangle scn_triangle_init(sr_window *window)
+void scn_triangle_init(scene_funcs_ *funcs)
 {
-    scn_triangle scn;
-    scn.scene.start = scn_triangle_start;
-    scn.scene.process_events = scn_triangle_process_events;
-    scn.scene.update = scn_triangle_update;
-    scn.scene.render = scn_triangle_render;
-    scn.scene.shutdown = scn_triangle_shutdown;
-
-    return scn;
+    funcs->start = (void *)scn_triangle_start;
+    funcs->process_events = (void *)scn_triangle_process_events;
+    funcs->update = (void *)scn_triangle_update;
+    funcs->render = (void *)scn_triangle_render;
+    funcs->shutdown = (void *)scn_triangle_shutdown;
 }
 
-void scn_triangle_start()
+void scn_triangle_start(scn_triangle_data_ *scene_context)
 {
 }
 
-void scn_triangle_process_events()
+void scn_triangle_process_events(scn_triangle_data_ *data)
+{
+    window_pump_messages(&data->app->window);
+}
+
+void scn_triangle_update(scn_triangle_data_ *data)
 {
 }
 
-void scn_triangle_update()
+void scn_triangle_render(scn_triangle_data_ *data)
 {
+    window_swap_buffers(&data->app->window);
 }
 
-void scn_triangle_render(sr_window *window)
-{
-    window_swap_buffers(window);
-    window_pump_messages(window);
-}
-
-void scn_triangle_shutdown()
+void scn_triangle_shutdown(scn_triangle_data_ *data)
 {
     printf("Shutting Down\n");
 }

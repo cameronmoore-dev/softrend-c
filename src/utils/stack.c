@@ -27,7 +27,7 @@ void stack_close(stack_ *stack)
 
     // The beginning of the stacked elements.
     // Starts sizeof(stack_) after the base stack_ pointer
-    stack_ **bot = (stack_ **)(stack + 1); 
+    stack_ **bot = (stack_ **)(stack + 1);
     
     while (top != bot)
     {

@@ -7,23 +7,27 @@ int main(void)
 {
     printf("Hello World!\n");
 
-    sr_window *window = window_create("SoftRend", 640, 480);
-    scene_manager_ scene_manager = scene_manager_init();
+    app_context_ app;
+    app.window = window_create("SoftRend", 640, 480);
+    app.scene_manager = scene_manager_init();
 
-    scn_triangle scn_triangle = scn_triangle_init();
-    add_scene(&scene_manager, scn_triangle.scene);
-    
-    current_scene(&scene_manager)->start();
-    while (window_is_open(window))
+    scn_triangle_data_ scn_triangle_data;
+    scn_triangle_data.app = &app;
+
+    scene_ scn_triangle = create_scene(&scn_triangle_data, scn_triangle_init);
+    add_scene(&app.scene_manager, &scn_triangle);
+
+    scene_ *current = current_scene(&app.scene_manager);
+    current->funcs.start(current->data);
+    while (window_is_open(&app.window))
     {
-        scene_ *current = current_scene(&scene_manager);
-        current->process_events();
-        current->update();
-        current->render(window);
+        scene_ *current = current_scene(&app.scene_manager);
+        current->funcs.process_events(current->data);
+        current->funcs.update(current->data);
+        current->funcs.render(current->data);
     }
 
-    window_cleanup(window);
-    scene_manager_close(&scene_manager);
+    app_context_close(&app);
 
     printf("Goodbye World!\n");
     return 0;

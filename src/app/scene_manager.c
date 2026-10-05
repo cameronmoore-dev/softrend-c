@@ -2,8 +2,6 @@
 
 #include <stdlib.h>
 
-#include <stdio.h>
-
 scene_manager_ scene_manager_init()
 {
     scene_manager_ sm;
@@ -16,9 +14,18 @@ void scene_manager_close(scene_manager_ *manager)
     stack_close(manager->scenes);
 }
 
-void add_scene(scene_manager_ *manager, scene_ scene)
+scene_ create_scene(void *scene_data, void(*init_fn)(scene_funcs_*))
 {
-    stack_push(manager->scenes, &scene);
+    scene_ scn;
+    scn.data = scene_data;
+    init_fn(&scn.funcs);
+
+    return scn;
+}
+
+void add_scene(scene_manager_ *manager, scene_ *scene)
+{
+    stack_push(manager->scenes, scene);
 }
 
 void remove_scene(scene_manager_ *manager)

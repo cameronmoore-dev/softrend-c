@@ -1,15 +1,15 @@
 #pragma once
 
-#include "app/scene_manager.h"
+#include "app/app_context.h"
 
-typedef struct scn_triangle
+typedef struct
 {
-    scene_ scene;
-} scn_triangle;
+    app_context_ *app;
+} scn_triangle_data_;
 
-scn_triangle scn_triangle_init();
-void scn_triangle_start();
-void scn_triangle_process_events();
-void scn_triangle_update();
-void scn_triangle_render(sr_window *window);
-void scn_triangle_shutdown();
+void scn_triangle_init(scene_funcs_ *funcs);
+void scn_triangle_start(scn_triangle_data_ *data);
+void scn_triangle_process_events(scn_triangle_data_ *data);
+void scn_triangle_update(scn_triangle_data_ *data);
+void scn_triangle_render(scn_triangle_data_ *data);
+void scn_triangle_shutdown(scn_triangle_data_ *data);
