@@ -21,9 +21,9 @@ void scn_triangle_start(scn_triangle_data_ *data)
     data->triangle[0].pos = (vec4f){ -0.5f, -0.5f, 0.0f, 1.0f };
     data->triangle[0].colour.packed = 0xFF0000;
     data->triangle[1].pos = (vec4f){ 0.5f, -0.5f, 0.0f, 1.0f };
-    data->triangle[1].colour.packed = 0x0000FF;
+    data->triangle[1].colour.packed = 0x00FF00;
     data->triangle[2].pos = (vec4f){ 0.0f, 0.5f, 0.0f, 1.0f };
-    data->triangle[2].colour.packed = 0x00FF00;
+    data->triangle[2].colour.packed = 0x0000FF;
 }
 
 void scn_triangle_process_events(scn_triangle_data_ *data)
