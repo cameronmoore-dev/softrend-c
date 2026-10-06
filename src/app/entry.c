@@ -8,12 +8,12 @@ int main(void)
     printf("Hello World!\n");
 
     app_context_ app;
-    app.window = window_create("SoftRend", 640, 480);
+    app.window = window_create("SoftRend-C", 640, 480);
+    app.renderer = renderer_init(&app.window.backbuffer, 0x111111);
     app.scene_manager = scene_manager_init();
 
     scn_triangle_data_ scn_triangle_data;
     scn_triangle_data.app = &app;
-
     scene_ scn_triangle = create_scene(&scn_triangle_data, scn_triangle_init);
     add_scene(&app.scene_manager, &scn_triangle);
 

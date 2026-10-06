@@ -14,8 +14,8 @@ typedef struct
 typedef struct
 {
     backbuffer_ backbuffer;
-    platform_context *platform;
     u32 *frontbuffer;
+    platform_context *platform;
     const char *title;
     u32 width;
     u32 height;

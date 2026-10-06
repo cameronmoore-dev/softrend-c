@@ -54,6 +54,9 @@ window_ window_create(const char *title, u32 width, u32 height)
             .height = height
         }
     };
+
+    wnd.frontbuffer = (u32 *)malloc(width * height * sizeof(u32));
+    wnd.backbuffer.data = (u32 *)malloc(width * height * sizeof(u32));
     
     wnd.platform->display = XOpenDisplay(NULL);
     XAutoRepeatOff(wnd.platform->display);
@@ -137,10 +140,6 @@ void window_swap_buffers(window_ *window)
     {
         u32 buffer_size = window->backbuffer.width * window->backbuffer.height;
         u32 buffer_size_bytes = (window->backbuffer.width * window->backbuffer.height) * sizeof(u32);
-        for (u32 i = 0; i < buffer_size; i++)
-        {
-            window->backbuffer.data[i] = 0x111111;
-        }
 
         memcpy(
             window->frontbuffer, window->backbuffer.data, 

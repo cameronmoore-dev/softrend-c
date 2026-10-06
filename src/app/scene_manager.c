@@ -1,7 +1,5 @@
 #include "app/scene_manager.h"
 
-#include <stdlib.h>
-
 scene_manager_ scene_manager_init()
 {
     scene_manager_ sm;

@@ -10,9 +10,16 @@ add_executable(softrend-c
     src/app/entry.c
     src/app/app_context.c
     src/app/scene_manager.c
+    src/app/shaders/shd_triangle.c
     src/app/scenes/scn_triangle.c
+
+    src/renderer/renderer.c
+    src/renderer/shader.c
     
-    src/utils/stack.c
+    src/data_structures/stack.c
+
+    src/_math.c
+    src/colour.c
 )
 
 if(WIN32)

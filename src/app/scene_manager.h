@@ -1,7 +1,7 @@
 #pragma once
 
 #include "window/window.h"
-#include "utils/stack.h"
+#include "data_structures/stack.h"
 
 typedef struct
 {

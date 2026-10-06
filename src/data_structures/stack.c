@@ -1,6 +1,4 @@
-#include "utils/stack.h"
-
-#include <stdio.h>
+#include "data_structures/stack.h"
 
 #include <stdlib.h>
 #include <string.h>
