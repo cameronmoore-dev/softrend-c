@@ -2,6 +2,8 @@
 
 #include <stdio.h>
 
+#include <math.h>
+
 void scn_cube_init(scene_funcs_ *funcs)
 {
     funcs->start = (void *)scn_cube_start;
@@ -18,7 +20,7 @@ void scn_cube_start(scn_cube_data_ *data)
         (void *)cube_vertex_shader, (void *)cube_fragment_shader
     );
 
-    vec3f p = { 0, 0, -10 };
+    vec3f p = { 0, 0, -5 };
     vec3f f = { 0, 0, -1 };
     vec3f u = { 0, 1, 0 };
     vec3f d = { p.x + f.x, p.y + f.y, p.z + f.z };
@@ -41,12 +43,10 @@ void scn_cube_process_events(scn_cube_data_ *data)
 void scn_cube_update(scn_cube_data_ *data)
 {
     static f32 angle;
-    angle+=0.128f;
-    if (angle > 360.f)
-    {
-        angle = (angle-360.f);
-    }
-    vec3f axis = { 0, 1, 1 };
+    angle += 0.128f;
+    if (angle > 360.f) angle -= 360.0f;
+    
+    vec3f axis = { 1.0f, 1.0f, 1.0f };
     mat4 transform = mat4_identity();
     mat4 rotation = matrix_rotate(angle, &axis);
     mat4 scale = mat4_identity();
@@ -55,7 +55,6 @@ void scn_cube_update(scn_cube_data_ *data)
     mat4 trs = mat4_mul(&transform, &rs);
 
     data->model = trs;
-
 }
 
 void scn_cube_render(scn_cube_data_ *data)

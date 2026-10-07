@@ -42,23 +42,9 @@ mesh_ mesh_load(const char *path)
                 &p0, &p1, &p2
             );
 
-            vertices[index+0].pos = vec3_to_vec4(&positions[p0 - 1], 1.0f);
-            if (vertices[index+0].colour.packed == 0)
-            {
-                vertices[index+0].colour.packed = 0xFF0000;
-            }
-            vertices[index+1].pos = vec3_to_vec4(&positions[p1 - 1], 1.0f);
-            if (vertices[index+1].colour.packed == 0)
-            {
-                vertices[index+1].colour.packed = 0x00FF00;
-            }
-            vertices[index+2].pos = vec3_to_vec4(&positions[p2 - 1], 1.0f);
-            if (vertices[index+2].colour.packed == 0)
-            {
-                vertices[index+2].colour.packed = 0x0000FF;
-            }
-
-            index+=3;
+            vertices[index++].pos = vec3_to_vec4(&positions[p0 - 1], 1.0f);
+            vertices[index++].pos = vec3_to_vec4(&positions[p1 - 1], 1.0f);
+            vertices[index++].pos = vec3_to_vec4(&positions[p2 - 1], 1.0f);
         }
 
         newline = fgets(filebuf, sizeof(filebuf), fp);

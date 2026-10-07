@@ -15,6 +15,13 @@ vertex_ cube_vertex_shader(cube_shader_data_ *data, vertex_ *vertex)
 bool cube_fragment_shader(cube_shader_data_ *data, vec3f *point, vertex_* mesh, colour_* colour)
 {
     // TODO: sample perspective correct texture
-    *colour = (colour_){ 0x44, 0x77, 0xFF, 0xFF };
+    vec4f final = 
+    {
+        .x = point->x,
+        .y = point->y,
+        .z = point->z
+    };
+
+    *colour = rgba_to_packed(final);
     return true;
 }
