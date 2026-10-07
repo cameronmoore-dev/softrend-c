@@ -1,6 +1,6 @@
 #pragma once
 
-#include "defines.h"
+#include "typedefs.h"
 
 typedef struct platform_context platform_context;
 

@@ -10,27 +10,29 @@ add_executable(softrend-c
     src/app/entry.c
     src/app/app_context.c
     src/app/scene_manager.c
+
     src/app/shaders/shd_triangle.c
+
     src/app/scenes/scn_triangle.c
+    src/app/scenes/scn_cube.c
 
     src/renderer/renderer.c
     src/renderer/shader.c
+    src/renderer/_math.c
+    src/renderer/colour.c
     
     src/data_structures/stack.c
-
-    src/_math.c
-    src/colour.c
 )
 
 if(WIN32)
     target_sources(softrend-c PUBLIC
-        src/window/win32/win32_window.c
+        src/os/win32/win32_window.c
     )
 elseif(LINUX)
     target_sources(softrend-c PUBLIC
-        src/window/linux/x11_window.c
+        src/os/linux/x11_window.c
     )
-    target_link_libraries(softrend-c PRIVATE -lX11 -lX11-xcb -lxcb -ludev -levdev)
+    target_link_libraries(softrend-c PRIVATE -lX11 -lX11-xcb -lxcb -ludev -levdev -lm)
 endif()
 
 target_include_directories(softrend-c PRIVATE src)

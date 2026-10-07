@@ -2,6 +2,7 @@
 
 #include "app/app_context.h"
 #include "app/scenes/scn_triangle.h"
+#include "app/scenes/scn_cube.h"
 
 int main(void)
 {
@@ -12,10 +13,15 @@ int main(void)
     app.renderer = renderer_init(&app.window.backbuffer, 0x111111);
     app.scene_manager = scene_manager_init();
 
-    scn_triangle_data_ scn_triangle_data;
-    scn_triangle_data.app = &app;
-    scene_ scn_triangle = create_scene(&scn_triangle_data, scn_triangle_init);
-    add_scene(&app.scene_manager, &scn_triangle);
+    // scn_triangle_data_ scn_triangle_data;
+    // scn_triangle_data.app = &app;
+    // scene_ scn_triangle = create_scene(&scn_triangle_data, scn_triangle_init);
+    // add_scene(&app.scene_manager, &scn_triangle);
+
+    scn_cube_data_ scn_cube_data;
+    scn_cube_data.app = &app;
+    scene_ scn_cube = create_scene((void *)&scn_cube_data, scn_cube_init);
+    add_scene(&app.scene_manager, &scn_cube);
 
     scene_ *current = current_scene(&app.scene_manager);
     current->funcs.start(current->data);

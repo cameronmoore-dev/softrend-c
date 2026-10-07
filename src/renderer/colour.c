@@ -21,3 +21,11 @@ vec4f packed_to_rgba(colour_ colour)
 
     return c;
 }
+
+vec4f srgb_to_linear(colour_ colour)
+{
+}
+
+vec4f linear_to_srgb(colour_ colour)
+{
+}

@@ -1,8 +1,5 @@
 #include "renderer.h"
-
 #include "_math.h"
-
-#include <stdio.h>
 
 void rasterize(renderer_ *renderer, vertex_ *mesh, shader_ *shader);
 void transform_to_screen_space(renderer_ * renderer, vertex_ *mesh);

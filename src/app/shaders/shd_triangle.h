@@ -1,11 +1,10 @@
 #pragma once
 
-#include "_math.h"
+#include "renderer/_math.h"
 #include "renderer/vertex.h"
 
 typedef struct
 {
-    
 } triangle_shader_data_;
 
 vertex_ triangle_vertex_shader(triangle_shader_data_ *data, vertex_ *vertex);

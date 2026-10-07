@@ -1,7 +1,7 @@
 #pragma once
 
-#include "_math.h"
-#include "colour.h"
+#include "renderer/_math.h"
+#include "renderer/colour.h"
 
 typedef struct
 {

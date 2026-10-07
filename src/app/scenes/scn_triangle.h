@@ -1,7 +1,6 @@
 #pragma once
 
 #include "app/app_context.h"
-
 #include "app/shaders/shd_triangle.h"
 
 typedef struct

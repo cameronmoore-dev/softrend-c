@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "defines.h"
+#include "typedefs.h"
 
 typedef struct stack
 {

@@ -2,8 +2,8 @@
 
 #include "renderer/vertex.h"
 #include "renderer/shader.h"
-#include "window/window.h"
-#include "colour.h"
+#include "renderer/colour.h"
+#include "os/window.h"
 
 typedef struct
 {

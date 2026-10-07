@@ -1,6 +1,5 @@
 #pragma once
 
-#include "window/window.h"
 #include "data_structures/stack.h"
 
 typedef struct
