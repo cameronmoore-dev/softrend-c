@@ -59,7 +59,7 @@ window_ window_create(const char *title, u32 width, u32 height)
     wnd.backbuffer.data = (u32 *)malloc(width * height * sizeof(u32));
     
     wnd.platform->display = XOpenDisplay(NULL);
-    XAutoRepeatOff(wnd.platform->display);
+    // XAutoRepeatOff(wnd.platform->display);
 
     wnd.platform->connection = XGetXCBConnection(wnd.platform->display);
 

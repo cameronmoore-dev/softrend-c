@@ -39,7 +39,7 @@ void scn_triangle_render(scn_triangle_data_ *data)
 {
     renderer_clear(&data->app->renderer);
 
-    renderer_draw(&data->app->renderer, data->triangle, &data->shader);
+    // renderer_draw(&data->app->renderer, data->triangle, &data->shader);
 
     window_swap_buffers(&data->app->window);
 }

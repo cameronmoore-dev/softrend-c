@@ -10,8 +10,10 @@ add_executable(softrend-c
     src/app/entry.c
     src/app/app_context.c
     src/app/scene_manager.c
+    src/app/obj_loader.c
 
     src/app/shaders/shd_triangle.c
+    src/app/shaders/shd_cube.c
 
     src/app/scenes/scn_triangle.c
     src/app/scenes/scn_cube.c
@@ -36,3 +38,4 @@ elseif(LINUX)
 endif()
 
 target_include_directories(softrend-c PRIVATE src)
+target_compile_options(softrend-c PRIVATE -Wall)

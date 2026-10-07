@@ -47,11 +47,11 @@ vec4f mat4_mul_vec4(mat4 *mat, vec4f *vec)
     return result;
 }
 
-mat4 mat4_mul(mat4 *a, mat4 *b)
+mat4 mat4_mul(const mat4 *a, const mat4 *b)
 {
-    u32 a_rows = array_count(a->m);
-    u32 a_cols = array_count(&a->m[0]);
-    u32 b_cols = array_count(&b->m[0]);
+    u32 a_rows = 4;
+    u32 a_cols = 4;
+    u32 b_cols = 4;
 
     mat4 result = {};
     for (u32 row = 0; row < a_rows; row++)
@@ -74,7 +74,7 @@ mat4 mat4_identity()
     {
         .m[0][0] = 1.0f,
         .m[1][1] = 1.0f,
-        .m[2][1] = 1.0f,
+        .m[2][2] = 1.0f,
         .m[3][3] = 1.0f
     };
 
@@ -150,7 +150,7 @@ void lookat_matrix(mat4 *mat, vec3f *pos, vec3f *forward, vec3f *up)
     mat->m[3][3] = 1.f;
 }
 
-void matrix_rotate(mat4 *mat, f32 angle, vec3f *axis)
+mat4 matrix_rotate(f32 angle, vec3f *axis)
 {
     f32 rad = degToRad(angle);
     vec3f ax = normalize(axis);
@@ -159,25 +159,18 @@ void matrix_rotate(mat4 *mat, f32 angle, vec3f *axis)
     f32 s = sinf(rad);
     f32 t = 1.0 - c;
 
-    mat->m[0][0] = t * ax.x * ax.x + c;
-    mat->m[0][1] = t * ax.x * ax.y - s * ax.z;
-    mat->m[0][2] = t * ax.x * ax.z + s * ax.y;
-    mat->m[1][0] = t * ax.x * ax.y + s * ax.z;
-    mat->m[1][1] = t * ax.y * ax.y + c;
-    mat->m[1][2] = t * ax.y * ax.z - s * ax.x;
-    mat->m[2][0] = t * ax.x * ax.z - s * ax.y;
-    mat->m[2][1] = t * ax.y * ax.z + s * ax.x;
-    mat->m[2][2] = t * ax.z * ax.z + c;
-}
+    mat4 result = mat4_identity();
+    result.m[0][0] = t * ax.x * ax.x + c;
+    result.m[0][1] = t * ax.x * ax.y - s * ax.z;
+    result.m[0][2] = t * ax.x * ax.z + s * ax.y;
+    result.m[1][0] = t * ax.x * ax.y + s * ax.z;
+    result.m[1][1] = t * ax.y * ax.y + c;
+    result.m[1][2] = t * ax.y * ax.z - s * ax.x;
+    result.m[2][0] = t * ax.x * ax.z - s * ax.y;
+    result.m[2][1] = t * ax.y * ax.z + s * ax.x;
+    result.m[2][2] = t * ax.z * ax.z + c;
 
-f32 minf(f32 a, f32 b)
-{
-    return (a < b) ? a : b;
-}
-
-f32 maxf(f32 a, f32 b)
-{
-    return (a > b) ? a : b;
+    return result;
 }
 
 f32 lerp(f32 a, f32 b, f32 t)
@@ -216,4 +209,19 @@ vec3f cross(vec3f *a, vec3f *b)
     };
 
     return result;
+}
+
+vec3f vec2_to_vec3(vec2f vec, f32 z)
+{
+    return (vec3f){ vec.x, vec.y, z };
+}
+
+vec4f vec2_to_vec4(vec2f vec, f32 z, f32 w)
+{
+    return (vec4f){ vec.x, vec.y, z, w };
+}
+
+vec4f vec3_to_vec4(vec3f *vec, f32 w)
+{
+    return (vec4f){ vec->x, vec->y, vec->z, w };
 }
