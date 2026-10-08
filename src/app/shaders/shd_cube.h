@@ -2,6 +2,7 @@
 
 #include "renderer/_math.h"
 #include "renderer/vertex.h"
+#include "app/img_loader.h"
 
 typedef struct
 {
@@ -11,6 +12,7 @@ typedef struct
     mat4 *model;
     
     // Texture
+    image_ *albedo;
 } cube_shader_data_;
 
 vertex_ cube_vertex_shader(cube_shader_data_ *data, vertex_ *vertex);

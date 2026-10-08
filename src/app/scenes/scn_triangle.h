@@ -7,8 +7,7 @@ typedef struct
 {
     app_context_ *app;
 
-    vertex_ triangle[3];
-
+    mesh_ triangle;
     triangle_shader_data_ shader_data;
     shader_ shader;
 } scn_triangle_data_;
