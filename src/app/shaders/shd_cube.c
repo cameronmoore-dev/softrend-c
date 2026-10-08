@@ -17,6 +17,6 @@ vertex_ cube_vertex_shader(cube_shader_data_ *data, vertex_ *vertex)
 
 bool cube_fragment_shader(cube_shader_data_ *data, vec3f *point, vertex_* mesh, colour_* colour)
 {
-    colour->packed = sample_texture_affine(mesh, data->albedo, point);
+    colour->packed = sample_texture(mesh, data->albedo, point);
     return true;
 }
