@@ -4,6 +4,30 @@
 
 #define array_count(x) (sizeof(x) / sizeof((x)[0]))
 
+vec3f vec3_mul_flt(vec3f *v, f32 f)
+{
+    vec3f result = 
+    {
+        .x = v->x * f,
+        .y = v->y * f,
+        .z = v->z * f
+    };
+    
+    return result;
+}
+
+vec3f vec3_sub(vec3f *a, vec3f *b)
+{
+    vec3f result = 
+    {
+        .x = a->x - b->x,
+        .y = a->y - b->y,
+        .z = a->z - b->z,
+    };
+
+    return result;
+}
+
 vec2f vec2_mul(vec2f a, vec2f b)
 {
     vec2f v;
@@ -209,6 +233,13 @@ vec3f cross(vec3f *a, vec3f *b)
     };
 
     return result;
+}
+
+f32 clampf(f32 value, f32 min, f32 max)
+{
+    if (value < min)        return min;
+    else if (value > max)   return max;
+    else                    return value;
 }
 
 vec3f vec2_to_vec3(vec2f vec, f32 z)

@@ -4,6 +4,7 @@
 #include <X11/XKBlib.h>
 #include <X11/keysym.h>
 #include <X11/Xlib-xcb.h>
+#include <X11/extensions/Xfixes.h>
 #include <xcb/xcb.h>
 #include <libevdev-1.0/libevdev/libevdev.h>
 #include <libudev.h>
@@ -39,10 +40,44 @@ typedef struct platform_context
 void window_on_resize(window_ *window, xcb_configure_notify_event_t *cfg);
 xcb_atom_t _xcb_intern_atom(xcb_connection_t *connection, const char *atom_name);
 
+void set_position(platform_context *platform, u32 x, u32 y)
+{
+    u32 mask = XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y;
+    s32 values[] = { x, y };
+    xcb_configure_window(platform->connection, platform->window, mask, values);
+    xcb_flush(platform->connection);
+}
+
+void update_cursor(window_ *window)
+{
+    xcb_warp_pointer(
+        window->platform->connection, 
+        XCB_NONE, 
+        window->platform->window, 
+        0, 0, 0, 0, 
+        320, 240
+    );
+
+    // xcb_grab_pointer(
+    //     platform->connection, 
+    //     1, 
+    //     platform->window, 
+    //     XCB_EVENT_MASK_BUTTON_PRESS | 
+    //     XCB_EVENT_MASK_BUTTON_RELEASE | 
+    //     XCB_EVENT_MASK_POINTER_MOTION, 
+    //     XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC, 
+    //     platform->window, 
+    //     XCB_NONE, XCB_CURRENT_TIME
+    // );
+
+    xcb_flush(window->platform->connection);
+}
+
 window_ window_create(const char *title, u32 width, u32 height)
 {
     window_ wnd = 
     {
+        .frontbuffer = (u32 *)malloc(width * height * sizeof(u32)),
         .platform = (platform_context *)malloc(sizeof(platform_context)),
         .title = title,
         .width = width,
@@ -50,17 +85,14 @@ window_ window_create(const char *title, u32 width, u32 height)
         .isOpen = true,
         .backbuffer = 
         {
+            .data = (u32 *)malloc(width * height * sizeof(u32)),
             .width = width,
             .height = height
         }
     };
-
-    wnd.frontbuffer = (u32 *)malloc(width * height * sizeof(u32));
-    wnd.backbuffer.data = (u32 *)malloc(width * height * sizeof(u32));
     
-    wnd.platform->display = XOpenDisplay(NULL);
     // XAutoRepeatOff(wnd.platform->display);
-
+    wnd.platform->display = XOpenDisplay(NULL);
     wnd.platform->connection = XGetXCBConnection(wnd.platform->display);
 
     XSetEventQueueOwner(wnd.platform->display, XCBOwnsEventQueue);
@@ -87,7 +119,7 @@ window_ window_create(const char *title, u32 width, u32 height)
         event_values 
     };
 
-    xcb_void_cookie_t window = xcb_create_window(
+    xcb_create_window(
         wnd.platform->connection,
         XCB_COPY_FROM_PARENT,
         wnd.platform->window,
@@ -118,33 +150,33 @@ window_ window_create(const char *title, u32 width, u32 height)
         4, 32, 1,
         &wnd.platform->wm_deleteWindow
     );
-
-    xcb_map_window(wnd.platform->connection, wnd.platform->window);
-    xcb_flush(wnd.platform->connection);
-
+    
     wnd.platform->udevice = udev_new();
     wnd.platform->umonitor = udev_monitor_new_from_netlink(wnd.platform->udevice, "udev");
     udev_monitor_filter_add_match_subsystem_devtype(wnd.platform->umonitor, "input", NULL);
     udev_monitor_enable_receiving(wnd.platform->umonitor);
-
+    
     wnd.platform->gid = xcb_generate_id(wnd.platform->connection);
     xcb_create_gc(wnd.platform->connection, wnd.platform->gid, wnd.platform->window, 0, NULL);
+
+    XFixesHideCursor(wnd.platform->display, wnd.platform->window);
+
+    xcb_map_window(wnd.platform->connection, wnd.platform->window);
+    xcb_flush(wnd.platform->connection);
 
     return wnd;
 }
 
 void window_swap_buffers(window_ *window)
 {
+    update_cursor(window);
+
     if (window->frontbuffer && 
         window->backbuffer.data)
     {
-        u32 buffer_size = window->backbuffer.width * window->backbuffer.height;
         u32 buffer_size_bytes = (window->backbuffer.width * window->backbuffer.height) * sizeof(u32);
 
-        memcpy(
-            window->frontbuffer, window->backbuffer.data, 
-            buffer_size_bytes
-        );
+        memcpy(window->frontbuffer, window->backbuffer.data, buffer_size_bytes);
 
         xcb_put_image(
             window->platform->connection, XCB_IMAGE_FORMAT_Z_PIXMAP, 
@@ -163,6 +195,7 @@ void window_swap_buffers(window_ *window)
 void window_cleanup(window_ *window)
 {
     XAutoRepeatOn(window->platform->display);
+    // xcb_ungrab_pointer(window->platform->connection, XCB_CURRENT_TIME);
     xcb_destroy_window(window->platform->connection, window->platform->window);
     xcb_free_gc(window->platform->connection, window->platform->gid);
     udev_unref(window->platform->udevice);
@@ -176,7 +209,7 @@ void window_cleanup(window_ *window)
 void window_pump_messages(window_ *window)
 {
     xcb_generic_event_t *event;
-    while (event = xcb_poll_for_event(window->platform->connection))
+    while ((event = xcb_poll_for_event(window->platform->connection)))
     {
         switch (event->response_type & ~0x80)
         {
@@ -199,6 +232,18 @@ void window_pump_messages(window_ *window)
 
             case XCB_MOTION_NOTIFY:
             {
+                xcb_motion_notify_event_t *mouse = (xcb_motion_notify_event_t *)event;
+
+                u32 cx = window->width / 2;
+                u32 cy = window->height / 2;
+                if (mouse->event_x == cx && mouse->event_y == cy)
+                {
+                    break;
+                }
+
+                window->input.mouse_dx = mouse->event_x - cx;
+                window->input.mouse_dy = mouse->event_y - cy;
+                
             } break;
 
             case XCB_KEY_PRESS:
@@ -206,10 +251,17 @@ void window_pump_messages(window_ *window)
                 xcb_key_press_event_t *kp = (xcb_key_press_event_t *)event;
                 xcb_keycode_t code = kp->detail;
                 KeySym key = XkbKeycodeToKeysym(window->platform->display, (KeyCode)code, 0, 1);
-                if (key == XK_Escape)
-                {
-                    window_close(window);
-                }
+
+                _set_key_pressed(&window->input, key);
+            } break;
+
+            case XCB_KEY_RELEASE:
+            {
+                xcb_key_press_event_t *kp = (xcb_key_press_event_t *)event;
+                xcb_keycode_t code = kp->detail;
+                KeySym key = XkbKeycodeToKeysym(window->platform->display, (KeyCode)code, 0, 1);
+
+                _set_key_released(&window->input, key);
             } break;
 
             default: break;

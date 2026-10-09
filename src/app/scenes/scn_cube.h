@@ -1,20 +1,20 @@
 #pragma once
 
 #include "app/app_context.h"
-#include "app/mesh_loader.h"
-#include "app/img_loader.h"
+#include "app/loaders/mesh_loader.h"
+#include "app/loaders/img_loader.h"
 #include "app/shaders/shd_cube.h"
+#include "app/camera.h"
 
 typedef struct scn_cube_data
 {
     app_context_ *app;
 
+    camera_ camera;
     image_ albedo;
     mesh_ cube;
     cube_shader_data_ shader_data;
     shader_ shader;
-    mat4 projection;
-    mat4 view;
     mat4 model;
 
     f32 *delta_time;

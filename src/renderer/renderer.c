@@ -68,8 +68,8 @@ void rasterize(renderer_ *renderer, face_ *face, shader_ *shader)
         for (p.x = bounding_box.x; p.x <= bounding_box.w; p.x++)
         {
             // Discard if the point is outside of the viewport's bounds
-            if (p.x < renderer->viewport.x || p.x > (renderer->viewport.x + renderer->viewport.w) ||
-                p.y < renderer->viewport.y || p.y > (renderer->viewport.y + renderer->viewport.h))
+            if (p.x < renderer->viewport.x || p.x > (renderer->viewport.x + (renderer->viewport.w - 1)) ||
+                p.y < renderer->viewport.y || p.y > (renderer->viewport.y + (renderer->viewport.h - 1)))
             {
                 continue;
             }
@@ -80,8 +80,10 @@ void rasterize(renderer_ *renderer, face_ *face, shader_ *shader)
             {
                 u32 flipped_y = renderer->drawbuffer->height - 1.0f - p.y;
                 u32 buffer_index = p.x + flipped_y * renderer->drawbuffer->width;
+                f32 z = face->vertices[0].pos.z * point.x + 
+                        face->vertices[1].pos.z * point.y + 
+                        face->vertices[2].pos.z * point.z;
 
-                f32 z = face->vertices[0].pos.z * point.x + face->vertices[1].pos.z * point.y + face->vertices[2].pos.z * point.z;
                 if (z < renderer->depthbuffer[buffer_index])
                 {
                     renderer->depthbuffer[buffer_index] = z;

@@ -1,7 +1,6 @@
 #include "scn_cube.h"
 
 #include <stdio.h>
-
 #include <math.h>
 
 void scn_cube_init(scene_funcs_ *funcs)
@@ -20,30 +19,13 @@ void scn_cube_start(scn_cube_data_ *data)
         (void *)cube_vertex_shader, (void *)cube_fragment_shader
     );
 
-    vec3f p = { 0, 0, -5 };
-    vec3f f = { 0, 0, -1 };
-    vec3f u = { 0, 1, 0 };
-    vec3f d = { p.x + f.x, p.y + f.y, p.z + f.z };
-
     data->albedo = image_load("./res/textures/texture_dirtcube.tga");
     data->cube = mesh_load("./res/models/cube.obj");
-
-    data->projection = perspective_matrix(45.0f, 640/480, 0.5f, 100.f);
-    lookat_matrix(&data->view, &p, &d, &u);
-
-    // vec3f axis = { 1.0f, 0.0f, 0.0f };
-    // mat4 transform = mat4_identity();
-    // mat4 rotation = matrix_rotate(180.0f, &axis);
-    // mat4 scale = mat4_identity();
-
-    // mat4 rs  = mat4_mul(&rotation, &scale);
-    // mat4 trs = mat4_mul(&transform, &rs);
-
-    // data->model = trs;
+    data->camera = camera_init();
     data->model = mat4_identity();
 
-    data->shader_data.projection = &data->projection;
-    data->shader_data.view = &data->view;
+    data->shader_data.projection = &data->camera.projection;
+    data->shader_data.view = &data->camera.view;
     data->shader_data.model = &data->model;
     data->shader_data.albedo = &data->albedo;
 }
@@ -51,6 +33,19 @@ void scn_cube_start(scn_cube_data_ *data)
 void scn_cube_process_events(scn_cube_data_ *data)
 {
     window_pump_messages(&data->app->window);
+
+    if (is_key_pressed(&data->app->window.input, ESC))
+    {
+        scn_cube_shutdown(data);
+    }
+
+    camera_update_position(&data->camera, &data->app->window.input, *data->delta_time);
+
+    s32 ox, oy;
+    ox = data->app->window.input.mouse_dx;
+    oy = data->app->window.input.mouse_dy;
+    camera_update_rotation(&data->camera, &data->app->window.input, (f32)ox, (f32)oy, *data->delta_time);
+    camera_update_view(&data->camera);
 }
 
 void scn_cube_update(scn_cube_data_ *data)
@@ -83,4 +78,6 @@ void scn_cube_shutdown(scn_cube_data_ *data)
 {
     mesh_free(&data->cube);
     image_free(&data->albedo);
+
+    window_close(&data->app->window);
 }

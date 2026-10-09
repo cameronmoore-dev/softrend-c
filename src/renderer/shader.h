@@ -1,7 +1,7 @@
 #pragma once
 
 #include "renderer/vertex.h"
-#include "app/img_loader.h"
+#include "app/loaders/img_loader.h"
 
 typedef struct
 {

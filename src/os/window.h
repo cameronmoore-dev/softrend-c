@@ -1,6 +1,7 @@
 #pragma once
 
 #include "typedefs.h"
+#include "os/input.h"
 
 typedef struct platform_context platform_context;
 
@@ -13,6 +14,7 @@ typedef struct
 
 typedef struct
 {
+    input_ input;
     backbuffer_ backbuffer;
     u32 *frontbuffer;
     platform_context *platform;

@@ -9,9 +9,10 @@ set(CMAKE_C_EXTENSIONS False)
 add_executable(softrend-c
     src/app/entry.c
     src/app/app_context.c
+    src/app/camera.c
     src/app/scene_manager.c
-    src/app/obj_loader.c
-    src/app/tga_loader.c
+    src/app/loaders/obj_loader.c
+    src/app/loaders/tga_loader.c
 
     src/app/shaders/shd_triangle.c
     src/app/shaders/shd_cube.c
@@ -34,8 +35,9 @@ if(WIN32)
 elseif(LINUX)
     target_sources(softrend-c PUBLIC
         src/os/linux/x11_window.c
+        src/os/linux/x11_input.c
     )
-    target_link_libraries(softrend-c PRIVATE -lX11 -lX11-xcb -lxcb -ludev -levdev -lm)
+    target_link_libraries(softrend-c PRIVATE -lX11 -lXfixes -lX11-xcb -lxcb -ludev -levdev -lm)
 endif()
 
 target_include_directories(softrend-c PRIVATE src)
