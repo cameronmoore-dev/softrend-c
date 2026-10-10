@@ -37,8 +37,8 @@ typedef struct
 
 typedef struct
 {
-    u32 x, y;
-    u32 w, h;
+    f32 x, y;
+    f32 w, h;
 } rect_;
 
 mat4 mat4_identity();

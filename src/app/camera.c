@@ -6,9 +6,9 @@ camera_ camera_init()
 {
     camera_ camera = 
     {
-        .projection = perspective_matrix(45.0f, 640/480, 0.5f, 100.f),
-        .position = { .x = 0.0f, .y = 0.0f, .z = -10.f },
-        .forward  = { .x = 0.0f, .y = 0.0f, .z = -1.f },
+        .projection = perspective_matrix(45.0f, 640/480, 0.5f, 15.f),
+        .position = { .x = 0.0f, .y = 0.0f, .z = -10.0f },
+        .forward  = { .x = 0.0f, .y = 0.0f, .z = -1.0f },
         .yaw = -90.0f,
         .sensitivity = 20.0f,
         .move_speed = 5.0f,
@@ -51,16 +51,16 @@ void camera_update_position(camera_ *camera, input_ *input, f32 delta_time)
     camera->position = vec3_sub(&camera->position, &u);
 }
 
-void camera_update_rotation(camera_ *camera, input_ *input, f32 offset_x, f32 offset_y, f32 delta_time)
+void camera_update_rotation(camera_ *camera, input_ *input, f32 delta_time)
 {
+    camera->yaw   += input->mouse_dx * camera->sensitivity * delta_time;
+    camera->pitch += input->mouse_dy * camera->sensitivity * delta_time;
+    camera->pitch = clampf(camera->pitch, -89.0f, 89.0f);
+
     // NOTE: The mouse delta only gets updated when a mouse event has been triggered by the OS,
     //       this means that the mouse delta never goes back to 0, and the rotation will drift
     input->mouse_dx = 0;
     input->mouse_dy = 0;
-
-    camera->yaw   += offset_x * camera->sensitivity * delta_time;
-    camera->pitch += offset_y * camera->sensitivity * delta_time;
-    camera->pitch = clampf(camera->pitch, -89.0f, 89.0f);
 
     f32 ryaw    = degToRad(camera->yaw);
     f32 rpitch  = degToRad(camera->pitch);

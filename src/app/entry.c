@@ -42,7 +42,7 @@ int main(void)
         current->funcs.update(current->data);
         current->funcs.render(current->data);
 
-        printf("FPS: %f\n", (1.0f/delta_time));
+        // printf("FPS: %f\n", (1.0f/delta_time));
     }
 
     app_context_close(&app);

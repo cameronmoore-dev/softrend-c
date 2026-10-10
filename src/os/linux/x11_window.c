@@ -50,23 +50,31 @@ void set_position(platform_context *platform, u32 x, u32 y)
 
 void update_cursor(window_ *window)
 {
+    u32 cx = window->width / 2;
+    u32 cy = window->height / 2;
+    if (window->input.mx == cx && 
+        window->input.my == cy)
+    {
+        return;
+    }
+
     xcb_warp_pointer(
         window->platform->connection, 
         XCB_NONE, 
         window->platform->window, 
         0, 0, 0, 0, 
-        320, 240
+        cx, cy
     );
 
     // xcb_grab_pointer(
-    //     platform->connection, 
+    //     window->platform->connection, 
     //     1, 
-    //     platform->window, 
+    //     window->platform->window, 
     //     XCB_EVENT_MASK_BUTTON_PRESS | 
     //     XCB_EVENT_MASK_BUTTON_RELEASE | 
     //     XCB_EVENT_MASK_POINTER_MOTION, 
     //     XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC, 
-    //     platform->window, 
+    //     window->platform->window, 
     //     XCB_NONE, XCB_CURRENT_TIME
     // );
 
@@ -236,13 +244,11 @@ void window_pump_messages(window_ *window)
 
                 u32 cx = window->width / 2;
                 u32 cy = window->height / 2;
-                if (mouse->event_x == cx && mouse->event_y == cy)
-                {
-                    break;
-                }
 
                 window->input.mouse_dx = mouse->event_x - cx;
                 window->input.mouse_dy = mouse->event_y - cy;
+                window->input.mx = mouse->event_x;
+                window->input.my = mouse->event_y;
                 
             } break;
 

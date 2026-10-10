@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <math.h>
 
+static bool should_quit = false;
+
 void scn_cube_init(scene_funcs_ *funcs)
 {
     funcs->start = (void *)scn_cube_start;
@@ -36,15 +38,11 @@ void scn_cube_process_events(scn_cube_data_ *data)
 
     if (is_key_pressed(&data->app->window.input, ESC))
     {
-        scn_cube_shutdown(data);
+        should_quit = true;
     }
 
     camera_update_position(&data->camera, &data->app->window.input, *data->delta_time);
-
-    s32 ox, oy;
-    ox = data->app->window.input.mouse_dx;
-    oy = data->app->window.input.mouse_dy;
-    camera_update_rotation(&data->camera, &data->app->window.input, (f32)ox, (f32)oy, *data->delta_time);
+    camera_update_rotation(&data->camera, &data->app->window.input, *data->delta_time);
     camera_update_view(&data->camera);
 }
 
@@ -72,6 +70,11 @@ void scn_cube_render(scn_cube_data_ *data)
     renderer_draw(&data->app->renderer, &data->cube, &data->shader);
 
     window_swap_buffers(&data->app->window);
+
+    if (should_quit)
+    {
+        scn_cube_shutdown(data);
+    }
 }
 
 void scn_cube_shutdown(scn_cube_data_ *data)

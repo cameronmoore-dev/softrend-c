@@ -20,6 +20,8 @@ typedef enum key
 typedef struct input
 {
     bool inputs[COUNT];
+    u32 mx;
+    u32 my;
     s32 mouse_dx;
     s32 mouse_dy;
 } input_;

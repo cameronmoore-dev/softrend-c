@@ -18,4 +18,4 @@ typedef struct camera
 camera_ camera_init();
 void camera_update_view(camera_ *camera);
 void camera_update_position(camera_ *camera, input_ *input, f32 delta_time);
-void camera_update_rotation(camera_ *camera, input_ *input, f32 offset_x, f32 offset_y, f32 delta_time);
+void camera_update_rotation(camera_ *camera, input_ *input, f32 delta_time);

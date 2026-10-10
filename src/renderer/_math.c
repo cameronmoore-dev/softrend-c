@@ -112,8 +112,8 @@ mat4 perspective_matrix(f32 fov, f32 aspect, f32 z_near, f32 z_far)
     {
         .m[0][0] = f / aspect,
         .m[1][1] = f,
-        .m[2][2] = -(z_far + z_near) / (z_near - z_far),
-        .m[2][3] = -(2.0f * z_near * z_far) / (z_far - z_near),
+        .m[2][2] = -(z_far + z_near) / (z_far - z_near),
+        .m[2][3] = -(2.0f * z_far * z_near) / (z_far - z_near),
         .m[3][2] = -1.0f
     };
 
