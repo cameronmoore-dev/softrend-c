@@ -10,7 +10,7 @@ camera_ camera_init()
         .position = { .x = 0.0f, .y = 0.0f, .z = -10.0f },
         .forward  = { .x = 0.0f, .y = 0.0f, .z = -1.0f },
         .yaw = -90.0f,
-        .sensitivity = 20.0f,
+        .sensitivity = 5.0f,
         .move_speed = 5.0f,
     };
 

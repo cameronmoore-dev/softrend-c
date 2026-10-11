@@ -1,4 +1,5 @@
 #include "os/window.h"
+#include "os/_time.h"
 
 #include <X11/Xlib.h>
 #include <X11/XKBlib.h>
@@ -15,6 +16,8 @@
 #include <unistd.h>
 
 #include <stdio.h>
+#include <errno.h>
+#include <time.h>
 
 #define MOUSE_BUTTON_LEFT   1
 #define MOUSE_BUTTON_MIDDLE 2
@@ -99,10 +102,10 @@ window_ window_create(const char *title, u32 width, u32 height)
         }
     };
     
-    // XAutoRepeatOff(wnd.platform->display);
     wnd.platform->display = XOpenDisplay(NULL);
     wnd.platform->connection = XGetXCBConnection(wnd.platform->display);
-
+    
+    XAutoRepeatOff(wnd.platform->display);
     XSetEventQueueOwner(wnd.platform->display, XCBOwnsEventQueue);
 
     const struct xcb_setup_t *setup = xcb_get_setup(wnd.platform->connection);
@@ -120,7 +123,8 @@ window_ window_create(const char *title, u32 width, u32 height)
         XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_BUTTON_RELEASE | 
         XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_KEY_RELEASE | 
         XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_POINTER_MOTION | 
-        XCB_EVENT_MASK_STRUCTURE_NOTIFY;
+        XCB_EVENT_MASK_FOCUS_CHANGE | XCB_EVENT_MASK_STRUCTURE_NOTIFY;
+
     u32 value_list[] = 
     {
         wnd.platform->screen->black_pixel, 
@@ -200,6 +204,21 @@ void window_swap_buffers(window_ *window)
     }
 }
 
+void window_sleep(window_ *window)
+{
+    duration_  target_frametime = set_duration(1.0 / 60.f);
+    timepoint_ next_frame_timepoint = get_future_point(&window->frame_start, &target_frametime);
+    timepoint_ now = get_time();
+
+    duration_ diff = timepoint_diff(&next_frame_timepoint, &now);
+
+    struct timespec ts = {};
+    ts.tv_nsec = diff.ns;
+    nanosleep(&ts, NULL);
+    
+    window->frame_start = get_time();
+}
+
 void window_cleanup(window_ *window)
 {
     XAutoRepeatOn(window->platform->display);
@@ -237,6 +256,26 @@ void window_pump_messages(window_ *window)
                 window_on_resize(window, cfg);
                 break;  
             } 
+
+            case XCB_FOCUS_IN:
+            {
+                XFixesHideCursor(window->platform->display, window->platform->window);
+
+                u32 cx = window->width / 2;
+                u32 cy = window->height / 2;
+                xcb_warp_pointer(
+                    window->platform->connection, 
+                    XCB_NONE, 
+                    window->platform->window, 
+                    0, 0, 0, 0, 
+                    cx, cy
+                );
+            } break;
+
+            case XCB_FOCUS_OUT:
+            {
+                XFixesShowCursor(window->platform->display, window->platform->window);
+            } break;
 
             case XCB_MOTION_NOTIFY:
             {
@@ -276,6 +315,8 @@ void window_pump_messages(window_ *window)
         free(event);
     }
 }
+
+
 
 bool window_is_open(window_ *window)
 {

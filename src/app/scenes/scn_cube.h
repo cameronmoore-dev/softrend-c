@@ -17,7 +17,7 @@ typedef struct scn_cube_data
     shader_ shader;
     mat4 model;
 
-    f32 *delta_time;
+    f64 *delta_time;
 } scn_cube_data_;
 
 void scn_cube_init(scene_funcs_ *funcs);

@@ -1,6 +1,8 @@
 #include <stdio.h>
+
 #include <time.h>
 
+#include "os/_time.h"
 #include "app/app_context.h"
 #include "app/scenes/scn_triangle.h"
 #include "app/scenes/scn_cube.h"
@@ -11,6 +13,7 @@ int main(void)
 
     app_context_ app;
     app.window = window_create("SoftRend-C", 640, 480);
+
     app.renderer = renderer_init(&app.window.backbuffer, 0x111111);
     app.scene_manager = scene_manager_init();
 
@@ -19,7 +22,7 @@ int main(void)
     // scene_ scn_triangle = create_scene(&scn_triangle_data, scn_triangle_init);
     // add_scene(&app.scene_manager, &scn_triangle);
 
-    f32 delta_time;
+    f64 delta_time;
 
     scn_cube_data_ scn_cube_data;
     scn_cube_data.app = &app;
@@ -30,19 +33,20 @@ int main(void)
     scene_ *current = current_scene(&app.scene_manager);
     current->funcs.start(current->data);
 
-    clock_t previous_time = clock();
+    timestep_ ts = {};
+    get_time(&ts.previous_time);
     while (window_is_open(&app.window))
     {
-        clock_t current_time = clock();
-        delta_time = (f32)(current_time - previous_time) / CLOCKS_PER_SEC;
-        previous_time = current_time;
+        update_timestep(&ts, &delta_time);
 
         scene_ *current = current_scene(&app.scene_manager);
         current->funcs.process_events(current->data);
         current->funcs.update(current->data);
         current->funcs.render(current->data);
 
-        // printf("FPS: %f\n", (1.0f/delta_time));
+        window_sleep(&app.window);
+        
+        printf("FPS: %f\n", (1.0f/delta_time));
     }
 
     app_context_close(&app);

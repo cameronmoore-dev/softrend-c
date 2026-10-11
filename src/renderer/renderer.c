@@ -17,15 +17,14 @@
 #define FAR_PLANE       5
 #define NUM_PLANES      6
 
+bool is_vertex_inside_frustum(vertex_ *vertex, u32 plane);
+vertex_ interpolate_vertex(vertex_ *a, vertex_ *b, u32 plane);
+u32 clip_triangle_against_plane(vertex_ *input, vertex_ *output, u32 plane, u32 num_vertices);
 void rasterize(renderer_ *renderer, face_ *face, shader_ *shader);
 void transform_to_screen_space(renderer_ *renderer, face_ *face);
 vec3f barycentric(vec2i *p, face_ *face);
 f32 winding_order(face_ *face);
 rect_ polygon_screen_bounding_box(face_ *face);
-
-bool is_vertex_inside_frustum(vertex_ *vertex, u32 plane);
-vertex_ interpolate_vertex(vertex_ *a, vertex_ *b, u32 plane);
-u32 clip_triangle_against_plane(vertex_ *input, vertex_ *output, u32 plane, u32 num_vertices);
 
 renderer_ renderer_init(backbuffer_ *drawbuffer, u32 clear_colour)
 {
@@ -38,14 +37,30 @@ renderer_ renderer_init(backbuffer_ *drawbuffer, u32 clear_colour)
     return r;
 }
 
-void renderer_clear(renderer_ * renderer)
+void renderer_clear(renderer_ *renderer)
 {
     if (!renderer->drawbuffer->data)
     {
         return;
     }
 
+    // TODO: Implement a render target types that will hold the draw and depth buffer.
+    //       Then before each clear, check to see of the window's back buffer has changed address,
+    //       if it has then realloc the depth buffer to match the new size
+    static u32 current_buffer_size;
+    if (current_buffer_size != 0 && current_buffer_size != (renderer->drawbuffer->width * renderer->drawbuffer->height))
+    {
+        current_buffer_size = (renderer->drawbuffer->width * renderer->drawbuffer->height);
+        f32 *tmp = (f32 *)realloc(renderer->depthbuffer, current_buffer_size * sizeof(f32));
+        if (tmp)
+        {
+            renderer->depthbuffer = tmp;
+        }
+    }
+    //
+
     u32 buf_size = renderer->drawbuffer->width * renderer->drawbuffer->height;
+    current_buffer_size = buf_size;
     for (u32 i = 0; i < buf_size; i++)
     {
         renderer->drawbuffer->data[i] = renderer->clear_colour.packed;

@@ -4,7 +4,7 @@ project(softrend-c LANGUAGES C)
 
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED True)
-set(CMAKE_C_EXTENSIONS False)
+set(CMAKE_C_EXTENSIONS True)
 
 add_executable(softrend-c
     src/app/entry.c
@@ -36,6 +36,7 @@ elseif(LINUX)
     target_sources(softrend-c PUBLIC
         src/os/linux/x11_window.c
         src/os/linux/x11_input.c
+        src/os/linux/linux_time.c
     )
     target_link_libraries(softrend-c PRIVATE -lX11 -lXfixes -lX11-xcb -lxcb -ludev -levdev -lm)
 endif()
