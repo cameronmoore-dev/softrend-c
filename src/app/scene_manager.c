@@ -1,5 +1,7 @@
 #include "app/scene_manager.h"
 
+#include <stdio.h>
+
 scene_manager_ scene_manager_init()
 {
     scene_manager_ sm;
@@ -23,7 +25,7 @@ scene_ create_scene(void *scene_data, void(*init_fn)(scene_funcs_*))
 
 void add_scene(scene_manager_ *manager, scene_ *scene)
 {
-    stack_push(manager->scenes, scene);
+    stack_push(&manager->scenes, (void *)scene);
 }
 
 void remove_scene(scene_manager_ *manager)

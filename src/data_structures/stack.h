@@ -6,7 +6,7 @@ typedef struct stack stack_;
 
 stack_ *stack_create(u32 type_size);
 void stack_close(stack_ *stack);
-void stack_push(stack_ *stack, void *elem);
+void stack_push(stack_ **pp_stack, void *elem);
 void stack_pop(stack_ *stack);
 stack_ **stack_get_top(stack_ *stack);
 

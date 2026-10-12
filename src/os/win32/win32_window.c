@@ -1,11 +1,12 @@
-#include "window/window.h"
+#include "os/window.h"
 
 #include <windows.h>
+#include <windowsx.h>
 
-#include <stdio.h>
+#include <stdlib.h>
 
 #ifndef UNICODE
-#define UNICODE
+#define UNICODE 1
 #endif
 
 #ifndef WIN32_LEAN_AND_MEAN
@@ -25,16 +26,14 @@ typedef struct platform_context
     RECT        windowed_rect;
 } platform_context;
 
-void window_on_resize(sr_window *window, LPARAM lparam);
+void update_cursor(window_ *window);
+void window_on_resize(window_ *window, LPARAM lparam);
 LRESULT CALLBACK window_proc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
-platform_context *window_create_platform_context()
+window_ *window_create(const char *title, u32 width, u32 height)
 {
-    return malloc(sizeof(platform_context));
-}
+    timeBeginPeriod(1);
 
-sr_window *window_create(const char *title, u32 width, u32 height)
-{
     const char CLASS_NAME[] = { "SoftRendWindowClass" };
     WNDCLASS wc = 
     {
@@ -45,10 +44,20 @@ sr_window *window_create(const char *title, u32 width, u32 height)
     };
     RegisterClass(&wc);
 
-    sr_window *wnd = calloc(1, sizeof(sr_window));
-    wnd->platform  = calloc(1, sizeof(platform_context));
+    window_ *window = (window_ *)malloc(sizeof(window_));
+    window->platform = (platform_context *)malloc(sizeof(platform_context));
+    window->frontbuffer = (u32 *)malloc(width * height * sizeof(u32));
+    window->title = title;
+    window->width = width;
+    window->height = height;
+    window->backbuffer.data = (u32 *)malloc(width * height * sizeof(u32));
+    window->backbuffer.width = width;
+    window->backbuffer.height = height;
+    window->isOpen = true;
+    window->input = (input_){};
+    window->frame_start = (timepoint_){};
 
-    wnd->platform->hwnd = CreateWindowEx(
+    window->platform->hwnd = CreateWindowEx(
         0, CLASS_NAME,
         title, 
         WS_OVERLAPPEDWINDOW,
@@ -58,74 +67,100 @@ sr_window *window_create(const char *title, u32 width, u32 height)
         GetModuleHandle(NULL), NULL
     );
 
-    
-    wnd->backbuffer = calloc(1, sizeof(sr_backbuffer));
-    wnd->title = title;
-    wnd->width = width;
-    wnd->height = height;
-    wnd->isOpen = true;
-    SetProp(wnd->platform->hwnd, "SoftRendWindow", (HANDLE)wnd);
-    SetProp(wnd->platform->hwnd, "SoftRendPlatformContext", (HANDLE)wnd->platform);
+    SetProp(window->platform->hwnd, "SoftRendWindow", (HANDLE)window);
 
     // Bitmap setup
-    wnd->platform->device_context = CreateCompatibleDC(0);
-    wnd->platform->bitmap_info.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-    wnd->platform->bitmap_info.bmiHeader.biPlanes = 1;
-    wnd->platform->bitmap_info.bmiHeader.biBitCount = 32;
-    wnd->platform->bitmap_info.bmiHeader.biCompression = BI_RGB;
+    window->platform->device_context = CreateCompatibleDC(0);
+    window->platform->bitmap_info.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+    window->platform->bitmap_info.bmiHeader.biPlanes = 1;
+    window->platform->bitmap_info.bmiHeader.biBitCount = 32;
+    window->platform->bitmap_info.bmiHeader.biCompression = BI_RGB;
 
-    ShowWindow(wnd->platform->hwnd, SW_NORMAL);
-    SetFocus(wnd->platform->hwnd);
+    // Register mouse as raw input device
+    RAWINPUTDEVICE rid[1];
+    rid[0].usUsagePage = 0x01;
+    rid[0].usUsage = 0x02;
+    rid[0].dwFlags = 0;
+    rid[0].hwndTarget = window->platform->hwnd;
+    RegisterRawInputDevices(rid, 1, sizeof(RAWINPUTDEVICE));
 
-    memset(wnd->backbuffer->buffer, 0x111111, wnd->backbuffer->width * wnd->backbuffer->height * sizeof(u32));
+    ShowWindow(window->platform->hwnd, SW_NORMAL);
+    SetFocus(window->platform->hwnd);
 
-    return wnd;
+    return window;
 }
 
-void window_swap_buffers(sr_window *window)
+void window_swap_buffers(window_ *window)
 {
+    update_cursor(window);
+
     InvalidateRect(window->platform->hwnd, NULL, false);
 
     PAINTSTRUCT paint;
     HDC hdc = BeginPaint(window->platform->hwnd, &paint);
 
-    u32 buf_size = window->backbuffer->width * window->backbuffer->height * sizeof(u32);
-    memcpy(window->frontbuffer, window->backbuffer->buffer, buf_size);
+    u32 buf_size = window->backbuffer.width * window->backbuffer.height * sizeof(u32);
+    memcpy(window->frontbuffer, window->backbuffer.data, buf_size);
     BitBlt(hdc, 
         paint.rcPaint.left, paint.rcPaint.top, 
-        window->backbuffer->width, window->backbuffer->height, 
+        window->backbuffer.width, window->backbuffer.height, 
         window->platform->device_context, 
         paint.rcPaint.left, paint.rcPaint.top, 
         SRCCOPY);
 
     EndPaint(window->platform->hwnd, &paint);
-
-    window_pump_messages(window);
 }
 
-void window_cleanup(sr_window *window)
+void window_sleep(window_ *window)
 {
+    duration_ target_frametime = set_duration(1.0f / 60.f);
+    timepoint_ next_frame_timepoint = get_future_point(&window->frame_start, &target_frametime);
+    timepoint_ now = get_time();
+    duration_ diff = timepoint_diff(&next_frame_timepoint, &now);
+
+    // NOTE: When using the window's close button
+    //       the diff can be a 'negative' number (underflowed to a very large number),
+    //       so we have to check if the signed diff is greater than than 0
+    if ((s64)diff.ms > 0)
+    {
+        Sleep(((DWORD)diff.ms));
+    }
+
+    window->frame_start = get_time();
+}
+
+void window_cleanup(window_ *window)
+{
+    timeEndPeriod(1);
+
     DestroyWindow(window->platform->hwnd);
     DeleteObject(window->platform->bitmap);
     DeleteDC(window->platform->device_context);
 
-    free(window->backbuffer->buffer);
-    free(window->backbuffer);
+    free(window->backbuffer.data);
     free(window->platform);
     free(window);
 }
 
-bool window_is_open(sr_window *window)
+void update_cursor(window_ *window)
+{
+    RECT rect;
+    GetWindowRect(window->platform->hwnd, &rect);
+    SetCursorPos(rect.left + (window->width / 2), rect.bottom - (window->height / 2));
+    ShowCursor(false);
+}
+
+bool window_is_open(window_ *window)
 {
     return window->isOpen;
 }
 
-void window_close(sr_window *window)
+void window_close(window_ *window)
 {
     window->isOpen = false;
 }
 
-void window_pump_messages(sr_window *window)
+void window_pump_messages(window_ *window)
 {
     MSG msg = {};
     while (PeekMessage(&msg, window->platform->hwnd, 0, 0, PM_REMOVE))
@@ -135,8 +170,11 @@ void window_pump_messages(sr_window *window)
     }
 }
 
-void window_on_resize(sr_window *window, LPARAM lparam)
+void window_on_resize(window_ *window, LPARAM lparam)
 {
+    if (window->width  == LOWORD(lparam) && 
+        window->height == HIWORD(lparam)) return;
+
     window->width  = LOWORD(lparam);
     window->height = HIWORD(lparam);
 
@@ -148,6 +186,8 @@ void window_on_resize(sr_window *window, LPARAM lparam)
     window->platform->bitmap_info.bmiHeader.biWidth  = window->width;
     window->platform->bitmap_info.bmiHeader.biHeight = window->height;
 
+    // NOTE: When a new DIBSection is created, the window's frontbuffer is automatically reallocated.
+    //       Don't free or malloc
     window->platform->bitmap = CreateDIBSection( NULL, 
                                         &window->platform->bitmap_info, 
                                         DIB_RGB_COLORS, 
@@ -155,16 +195,16 @@ void window_on_resize(sr_window *window, LPARAM lparam)
                                         NULL, 0);
     SelectObject(window->platform->device_context, window->platform->bitmap);
 
-    free(window->backbuffer->buffer);
-    window->backbuffer->buffer = malloc(window->width * window->height * sizeof(u32));
-    window->backbuffer->width  = window->width;
-    window->backbuffer->height = window->height;
+    // TODO: Use realloc()
+    if (window->backbuffer.data)   free(window->backbuffer.data);
+    window->backbuffer.data = (u32 *)malloc(window->width * window->height * sizeof(u32));
+    window->backbuffer.width  = window->width;
+    window->backbuffer.height = window->height;
 }
 
 LRESULT CALLBACK window_proc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
-    sr_window *window = GetProp(hwnd, "SoftRendWindow");
-    platform_context *window->platform = GetProp(hwnd, "SoftRendPlatformContext");
+    window_ *window  = GetProp(hwnd, "SoftRendWindow");
     if (!window)
     {
         return DefWindowProc(hwnd, msg, wparam, lparam);
@@ -182,6 +222,38 @@ LRESULT CALLBACK window_proc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
             window_on_resize(window, lparam);
         } break;
 
+        case WM_KEYDOWN:
+        {
+            _set_key_pressed(&window->input, (u32)wparam);
+        } break;
+
+        case WM_KEYUP:
+        {
+            _set_key_released(&window->input, (u32)wparam);
+        } break;
+
+        case WM_INPUT:
+        {
+            UINT size;
+            GetRawInputData((HRAWINPUT)lparam, RID_INPUT, NULL, &size, sizeof(RAWINPUTHEADER));
+
+            BYTE input_buffer[48];
+            if (GetRawInputData((HRAWINPUT)lparam, RID_INPUT, input_buffer, &size, sizeof(RAWINPUTHEADER)) != size)
+            {
+                break;
+            }
+
+            RAWINPUT *raw = (RAWINPUT *)input_buffer;
+            if (raw->header.dwType == RIM_TYPEMOUSE)
+            {
+                if (raw->data.mouse.usFlags == MOUSE_MOVE_RELATIVE)
+                {
+                    window->input.mouse_dx +=  raw->data.mouse.lLastX;
+                    window->input.mouse_dy += -raw->data.mouse.lLastY;
+                }
+            }
+        } break;
+
         case WM_DESTROY:
         {
             RemoveProp(hwnd, "SoftRendWindow");
@@ -193,4 +265,6 @@ LRESULT CALLBACK window_proc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
             return DefWindowProc(hwnd, msg, wparam, lparam);
         } break;
     }
+
+    return DefWindowProc(hwnd, msg, wparam, lparam);
 }

@@ -176,7 +176,7 @@ void lookat_matrix(mat4 *mat, vec3f *pos, vec3f *forward, vec3f *up)
 
 mat4 matrix_rotate(f32 angle, vec3f *axis)
 {
-    f32 rad = degToRad(angle);
+    f32 rad = degrees_to_radians(angle);
     vec3f ax = normalize(axis);
 
     f32 c = cosf(rad);
@@ -202,7 +202,7 @@ f32 lerp(f32 a, f32 b, f32 t)
     return a + t * (b - a);
 }
 
-f32 degToRad(f32 degrees)
+f32 degrees_to_radians(f32 degrees)
 {
     return degrees * (PI / 180.0f);
 }

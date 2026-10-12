@@ -3,7 +3,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <stdio.h>
+
 #include "typedefs.h"
+
+#include "app/scene_manager.h"
 
 typedef struct stack
 {
@@ -38,23 +42,23 @@ void stack_close(stack_ *stack)
     free(stack);
 }
 
-void stack_push(stack_ *stack, void *elem)
+void stack_push(stack_ **pp_stack, void *elem)
 {
-    u32 buf_size = sizeof(stack_) + sizeof(uintptr_t) * ++stack->count;
-    void *tmp = realloc(stack, buf_size);
+    u32 buf_size = sizeof(stack_) + sizeof(uintptr_t) * ++(*pp_stack)->count;
+    void *tmp = realloc((*pp_stack), buf_size);
     if (tmp)
     {
-        stack = tmp;
+        (*pp_stack) = tmp;
 
         // The head of the stack 
         // points to a pointer that points to the element's data
-        stack_ **new_top = stack_get_top(stack);
+        stack_ **new_top = stack_get_top((*pp_stack));
 
         // Create enough space on the heap for a copy of the element
-        void *e = malloc(stack->type_size);
+        void *e = malloc((*pp_stack)->type_size);
         
         // Copy the element's data into the new allocation
-        memcpy(e, elem, stack->type_size);
+        memcpy(e, elem, (*pp_stack)->type_size);
 
         // Set the pointer of the newly allocated element 
         // as the value that the top of the stack points to

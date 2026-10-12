@@ -6,7 +6,7 @@
 
 typedef struct
 {
-    window_ window;
+    window_ *window;
     renderer_ renderer;
     scene_manager_ scene_manager;
 } app_context_;

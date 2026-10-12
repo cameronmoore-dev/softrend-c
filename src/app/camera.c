@@ -62,8 +62,8 @@ void camera_update_rotation(camera_ *camera, input_ *input, f32 delta_time)
     input->mouse_dx = 0;
     input->mouse_dy = 0;
 
-    f32 ryaw    = degToRad(camera->yaw);
-    f32 rpitch  = degToRad(camera->pitch);
+    f32 ryaw    = degrees_to_radians(camera->yaw);
+    f32 rpitch  = degrees_to_radians(camera->pitch);
 
     vec3f dir = 
     {

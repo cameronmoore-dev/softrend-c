@@ -57,7 +57,7 @@ vec4f mat4_mul_vec4(mat4 *mat, vec4f *vec);
 mat4  mat4_mul(const mat4 *a, const mat4 *b);
 
 f32 lerp(f32 a, f32 b, f32 t);
-f32 degToRad(f32 degrees);
+f32 degrees_to_radians(f32 degrees);
 f32 dot(vec3f *a, vec3f *b);
 f32 length(vec3f *vec);
 vec3f normalize(vec3f *vec);

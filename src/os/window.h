@@ -26,7 +26,7 @@ typedef struct
     bool isOpen;
 } window_;
 
-window_ window_create(const char *title, u32 width, u32 height);
+window_ *window_create(const char *title, u32 width, u32 height);
 void window_swap_buffers(window_ *window);
 void window_sleep(window_ *window);
 void window_cleanup(window_ *window);

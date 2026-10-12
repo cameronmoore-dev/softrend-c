@@ -31,7 +31,7 @@ void scn_triangle_start(scn_triangle_data_ *data)
 
 void scn_triangle_process_events(scn_triangle_data_ *data)
 {
-    window_pump_messages(&data->app->window);
+    window_pump_messages(data->app->window);
 }
 
 void scn_triangle_update(scn_triangle_data_ *data)
@@ -44,7 +44,7 @@ void scn_triangle_render(scn_triangle_data_ *data)
 
     renderer_draw(&data->app->renderer, &data->triangle, &data->shader);
 
-    window_swap_buffers(&data->app->window);
+    window_swap_buffers(data->app->window);
 }
 
 void scn_triangle_shutdown(scn_triangle_data_ *data)

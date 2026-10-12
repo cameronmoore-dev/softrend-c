@@ -1,8 +1,5 @@
 #include "scn_cube.h"
 
-#include <stdio.h>
-#include <math.h>
-
 static bool should_quit = false;
 
 void scn_cube_init(scene_funcs_ *funcs)
@@ -34,22 +31,22 @@ void scn_cube_start(scn_cube_data_ *data)
 
 void scn_cube_process_events(scn_cube_data_ *data)
 {
-    window_pump_messages(&data->app->window);
+    window_pump_messages(data->app->window);
 
-    if (is_key_pressed(&data->app->window.input, ESC))
+    if (is_key_pressed(&data->app->window->input, ESC))
     {
         should_quit = true;
     }
 
-    camera_update_position(&data->camera, &data->app->window.input, *data->delta_time);
-    camera_update_rotation(&data->camera, &data->app->window.input, *data->delta_time);
+    camera_update_position(&data->camera, &data->app->window->input, *data->delta_time);
+    camera_update_rotation(&data->camera, &data->app->window->input, *data->delta_time);
     camera_update_view(&data->camera);
 }
 
 void scn_cube_update(scn_cube_data_ *data)
 {
     static f32 angle;
-    angle += 40.f * (*data->delta_time);
+    angle += 40.0f * (*data->delta_time);
     if (angle > 360.f) angle -= 360.0f;
     
     vec3f axis = { -1.0f, 1.0f, 2.0f };
@@ -66,11 +63,8 @@ void scn_cube_update(scn_cube_data_ *data)
 void scn_cube_render(scn_cube_data_ *data)
 {
     renderer_clear(&data->app->renderer);
-
     renderer_draw(&data->app->renderer, &data->cube, &data->shader);
-
-    window_swap_buffers(&data->app->window);
-
+    window_swap_buffers(data->app->window);
     if (should_quit)
     {
         scn_cube_shutdown(data);
@@ -82,5 +76,5 @@ void scn_cube_shutdown(scn_cube_data_ *data)
     mesh_free(&data->cube);
     image_free(&data->albedo);
 
-    window_close(&data->app->window);
+    window_close(data->app->window);
 }

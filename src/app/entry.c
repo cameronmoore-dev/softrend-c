@@ -1,7 +1,5 @@
 #include <stdio.h>
 
-#include <time.h>
-
 #include "os/_time.h"
 #include "app/app_context.h"
 #include "app/scenes/scn_triangle.h"
@@ -13,10 +11,8 @@ int main(void)
 
     app_context_ app;
     app.window = window_create("SoftRend-C", 640, 480);
-
-    app.renderer = renderer_init(&app.window.backbuffer, 0x111111);
+    app.renderer = renderer_init(&app.window->backbuffer, 0x111111);
     app.scene_manager = scene_manager_init();
-
     // scn_triangle_data_ scn_triangle_data;
     // scn_triangle_data.app = &app;
     // scene_ scn_triangle = create_scene(&scn_triangle_data, scn_triangle_init);
@@ -35,7 +31,8 @@ int main(void)
 
     timestep_ ts = {};
     get_time(&ts.previous_time);
-    while (window_is_open(&app.window))
+    app.window->frame_start = get_time();
+    while (window_is_open(app.window))
     {
         update_timestep(&ts, &delta_time);
 
@@ -44,9 +41,9 @@ int main(void)
         current->funcs.update(current->data);
         current->funcs.render(current->data);
 
-        window_sleep(&app.window);
+        window_sleep(app.window);
         
-        printf("FPS: %f\n", (1.0f/delta_time));
+        printf("FPS: %.1f\n", (1.0f/delta_time));
     }
 
     app_context_close(&app);

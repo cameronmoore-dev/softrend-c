@@ -84,39 +84,36 @@ void update_cursor(window_ *window)
     xcb_flush(window->platform->connection);
 }
 
-window_ window_create(const char *title, u32 width, u32 height)
+window_ *window_create(const char *title, u32 width, u32 height)
 {
-    window_ wnd = 
-    {
-        .frontbuffer = (u32 *)malloc(width * height * sizeof(u32)),
-        .platform = (platform_context *)malloc(sizeof(platform_context)),
-        .title = title,
-        .width = width,
-        .height = height,
-        .isOpen = true,
-        .backbuffer = 
-        {
-            .data = (u32 *)malloc(width * height * sizeof(u32)),
-            .width = width,
-            .height = height
-        }
-    };
+    window_ *window = (window_ *)malloc(sizeof(window_));
+    window->platform = (platform_context *)malloc(sizeof(platform_context));
+    window->frontbuffer = (u32 *)malloc(width * height * sizeof(u32));
+    window->title = title;
+    window->width = width;
+    window->height = height;
+    window->backbuffer.data = (u32 *)malloc(width * height * sizeof(u32));
+    window->backbuffer.width = width;
+    window->backbuffer.height = height;
+    window->isOpen = true;
+    window->input = (input_){};
+    window->frame_start = (timepoint_){};
     
-    wnd.platform->display = XOpenDisplay(NULL);
-    wnd.platform->connection = XGetXCBConnection(wnd.platform->display);
+    window->platform->display = XOpenDisplay(NULL);
+    window->platform->connection = XGetXCBConnection(window->platform->display);
     
-    XAutoRepeatOff(wnd.platform->display);
-    XSetEventQueueOwner(wnd.platform->display, XCBOwnsEventQueue);
+    XAutoRepeatOff(window->platform->display);
+    XSetEventQueueOwner(window->platform->display, XCBOwnsEventQueue);
 
-    const struct xcb_setup_t *setup = xcb_get_setup(wnd.platform->connection);
+    const struct xcb_setup_t *setup = xcb_get_setup(window->platform->connection);
     xcb_screen_iterator_t it = xcb_setup_roots_iterator(setup);
     for (s32 i = 0; i > 0; i--)
     {
         xcb_screen_next(&it);
     }
 
-    wnd.platform->screen = it.data;
-    wnd.platform->window = xcb_generate_id(wnd.platform->connection);
+    window->platform->screen = it.data;
+    window->platform->window = xcb_generate_id(window->platform->connection);
 
     u32 event_mask = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
     u32 event_values = 
@@ -127,56 +124,56 @@ window_ window_create(const char *title, u32 width, u32 height)
 
     u32 value_list[] = 
     {
-        wnd.platform->screen->black_pixel, 
+        window->platform->screen->black_pixel, 
         event_values 
     };
 
     xcb_create_window(
-        wnd.platform->connection,
+        window->platform->connection,
         XCB_COPY_FROM_PARENT,
-        wnd.platform->window,
-        wnd.platform->screen->root,
+        window->platform->window,
+        window->platform->screen->root,
         0, 0,
         width, height,
         0,
         XCB_WINDOW_CLASS_INPUT_OUTPUT,
-        wnd.platform->screen->root_visual,
+        window->platform->screen->root_visual,
         event_mask,
         value_list
     );
 
     xcb_change_property(
-        wnd.platform->connection, 
+        window->platform->connection, 
         XCB_PROP_MODE_REPLACE, 
-        wnd.platform->window, 
+        window->platform->window, 
         XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 
         8, strlen(title), title
     );
 
-    wnd.platform->wm_deleteWindow = _xcb_intern_atom(wnd.platform->connection, "WM_DELETE_WINDOW");
-    xcb_atom_t proto = _xcb_intern_atom(wnd.platform->connection, "WM_PROTOCOLS");
+    window->platform->wm_deleteWindow = _xcb_intern_atom(window->platform->connection, "WM_DELETE_WINDOW");
+    xcb_atom_t proto = _xcb_intern_atom(window->platform->connection, "WM_PROTOCOLS");
     xcb_change_property(
-        wnd.platform->connection,
+        window->platform->connection,
         XCB_PROP_MODE_REPLACE,
-        wnd.platform->window, proto,
+        window->platform->window, proto,
         4, 32, 1,
-        &wnd.platform->wm_deleteWindow
+        &window->platform->wm_deleteWindow
     );
     
-    wnd.platform->udevice = udev_new();
-    wnd.platform->umonitor = udev_monitor_new_from_netlink(wnd.platform->udevice, "udev");
-    udev_monitor_filter_add_match_subsystem_devtype(wnd.platform->umonitor, "input", NULL);
-    udev_monitor_enable_receiving(wnd.platform->umonitor);
+    window->platform->udevice = udev_new();
+    window->platform->umonitor = udev_monitor_new_from_netlink(window->platform->udevice, "udev");
+    udev_monitor_filter_add_match_subsystem_devtype(window->platform->umonitor, "input", NULL);
+    udev_monitor_enable_receiving(window->platform->umonitor);
     
-    wnd.platform->gid = xcb_generate_id(wnd.platform->connection);
-    xcb_create_gc(wnd.platform->connection, wnd.platform->gid, wnd.platform->window, 0, NULL);
+    window->platform->gid = xcb_generate_id(window->platform->connection);
+    xcb_create_gc(window->platform->connection, window->platform->gid, window->platform->window, 0, NULL);
 
-    XFixesHideCursor(wnd.platform->display, wnd.platform->window);
+    XFixesHideCursor(window->platform->display, window->platform->window);
 
-    xcb_map_window(wnd.platform->connection, wnd.platform->window);
-    xcb_flush(wnd.platform->connection);
+    xcb_map_window(window->platform->connection, window->platform->window);
+    xcb_flush(window->platform->connection);
 
-    return wnd;
+    return window;
 }
 
 void window_swap_buffers(window_ *window)
@@ -231,6 +228,7 @@ void window_cleanup(window_ *window)
     free(window->backbuffer.data);
     free(window->frontbuffer);
     free(window->platform);
+    free(window);
 }
 
 void window_pump_messages(window_ *window)

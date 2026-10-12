@@ -31,7 +31,10 @@ add_executable(softrend-c
 if(WIN32)
     target_sources(softrend-c PUBLIC
         src/os/win32/win32_window.c
+        src/os/win32/win32_input.c
+        src/os/win32/win32_time.c
     )
+    target_link_libraries(softrend-c PRIVATE -lwinmm)
 elseif(LINUX)
     target_sources(softrend-c PUBLIC
         src/os/linux/x11_window.c
