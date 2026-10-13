@@ -27,5 +27,6 @@ typedef struct input
 } input_;
 
 bool is_key_pressed(input_ *input, key key);
+bool is_key_held(input_ *input, key key);
 void _set_key_pressed(input_ *input, u32 keycode);
 void _set_key_released(input_ *input, u32 keycode);

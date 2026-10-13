@@ -6,6 +6,14 @@ key get_platform_key(u32 keycode);
 
 bool is_key_pressed(input_ *input, key key)
 {
+    bool pressed = input->inputs[key];
+    input->inputs[key] = false;
+
+    return pressed;
+}
+
+bool is_key_held(input_ *input, key key)
+{
     return input->inputs[key];
 }
 

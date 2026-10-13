@@ -5,6 +5,8 @@
 
 #include <stdlib.h>
 
+#include <stdio.h>
+
 #ifndef UNICODE
 #define UNICODE 1
 #endif
@@ -209,6 +211,7 @@ LRESULT CALLBACK window_proc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
     {
         return DefWindowProc(hwnd, msg, wparam, lparam);
     }
+
     switch (msg)
     {
         case WM_CLOSE:
