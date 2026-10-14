@@ -1,11 +1,11 @@
 #include "shader.h"
 
-shader_ shader_init(void *data, vertex_(*vertex)(void*, vertex_*), bool(*fragment)(void*, vec3f*, vertex_*, colour_*))
+shader_ shader_init(void *shader_data, vertex_(*vertex)(void*, vertex_*), bool(*fragment)(void*, vec3f*, vertex_*, colour_*))
 {
     shader_ s;
     s.vertex = vertex;
     s.fragment = fragment;
-    s.data = data;
+    s.data = shader_data;
 
     return s;
 }

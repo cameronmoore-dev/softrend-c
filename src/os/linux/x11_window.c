@@ -14,9 +14,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include <unistd.h>
-
 #include <stdio.h>
-#include <errno.h>
 #include <time.h>
 
 #define MOUSE_BUTTON_LEFT   1
@@ -102,6 +100,7 @@ window_ *window_create(const char *title, u32 width, u32 height)
     window->platform->display = XOpenDisplay(NULL);
     window->platform->connection = XGetXCBConnection(window->platform->display);
     
+    //
     XAutoRepeatOff(window->platform->display);
     XSetEventQueueOwner(window->platform->display, XCBOwnsEventQueue);
 
@@ -184,7 +183,6 @@ void window_swap_buffers(window_ *window)
         window->backbuffer.data)
     {
         u32 buffer_size_bytes = (window->backbuffer.width * window->backbuffer.height) * sizeof(u32);
-
         memcpy(window->frontbuffer, window->backbuffer.data, buffer_size_bytes);
 
         xcb_put_image(
@@ -283,17 +281,16 @@ void window_pump_messages(window_ *window)
                 u32 cy = window->height / 2;
 
                 window->input.mouse_dx = mouse->event_x - cx;
-                window->input.mouse_dy = mouse->event_y - cy;
+                window->input.mouse_dy = cy - mouse->event_y;
                 window->input.mx = mouse->event_x;
                 window->input.my = mouse->event_y;
-                
             } break;
 
             case XCB_KEY_PRESS:
             {
                 xcb_key_press_event_t *kp = (xcb_key_press_event_t *)event;
                 xcb_keycode_t code = kp->detail;
-                KeySym key = XkbKeycodeToKeysym(window->platform->display, (KeyCode)code, 0, 1);
+                KeySym key = XkbKeycodeToKeysym(window->platform->display, (KeyCode)code, 0, (kp->state & XCB_MOD_MASK_SHIFT));
 
                 _set_key_pressed(&window->input, key);
             } break;
@@ -302,7 +299,7 @@ void window_pump_messages(window_ *window)
             {
                 xcb_key_press_event_t *kp = (xcb_key_press_event_t *)event;
                 xcb_keycode_t code = kp->detail;
-                KeySym key = XkbKeycodeToKeysym(window->platform->display, (KeyCode)code, 0, 1);
+                KeySym key = XkbKeycodeToKeysym(window->platform->display, (KeyCode)code, 0, 0);
 
                 _set_key_released(&window->input, key);
             } break;
@@ -328,10 +325,14 @@ void window_close(window_ *window)
 
 void window_on_resize(window_ *window, xcb_configure_notify_event_t *cfg)
 {
+    if (window->width  == cfg->width && 
+        window->height == cfg->height)
+            return;
+
     window->width  = cfg->width;
     window->height = cfg->height;
 
-    // TODO: Use realloc()
+    // TODO: Use realloc()???
     if (window->frontbuffer)       free(window->frontbuffer);
     if (window->backbuffer.data)   free(window->backbuffer.data);
     window->frontbuffer = (u32 *)malloc(cfg->width * cfg->height * sizeof(u32));
@@ -345,7 +346,7 @@ xcb_atom_t _xcb_intern_atom(xcb_connection_t *connection, const char *atom_name)
     xcb_intern_atom_cookie_t cookie = xcb_intern_atom(connection, 0, strlen(atom_name), atom_name);
     xcb_intern_atom_reply_t *reply = xcb_intern_atom_reply(connection, cookie, NULL);
     xcb_atom_t atom = reply->atom;
-
     free(reply);
+
     return atom;
 }

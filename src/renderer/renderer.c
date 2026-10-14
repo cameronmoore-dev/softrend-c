@@ -203,8 +203,8 @@ void rasterize(renderer_ *renderer, face_ *face, shader_ *shader)
             bool point_in_polygon = (point.x >= 0.0f && point.y >= 0.0f && point.z >= 0.0f);
             if (point_in_polygon)
             {
-                u32 flipped_y = renderer->drawbuffer->height - 1.0f - p.y;
-                u32 buffer_index = p.x + flipped_y * renderer->drawbuffer->width;
+                // u32 flipped_y = renderer->drawbuffer->height - 1.0f - p.y;
+                u32 buffer_index = p.x + p.y * renderer->drawbuffer->width;
                 f32 z = face->vertices[0].pos.z * point.x + 
                         face->vertices[1].pos.z * point.y + 
                         face->vertices[2].pos.z * point.z;

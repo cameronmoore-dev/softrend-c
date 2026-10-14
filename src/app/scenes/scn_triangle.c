@@ -1,7 +1,6 @@
 #include "app/scenes/scn_triangle.h"
 
 #include <stdlib.h>
-#include <stdio.h>
 
 void scn_triangle_init(scene_funcs_ *funcs)
 {
@@ -14,24 +13,24 @@ void scn_triangle_init(scene_funcs_ *funcs)
 
 void scn_triangle_start(scn_triangle_data_ *data)
 {
-    data->shader = shader_init(
-        (void *)&data->shader_data, 
-        (void *)triangle_vertex_shader, (void *)triangle_fragment_shader
-    );
+    data->shader = shader_init((void *)&data->shader_data, (void *)triangle_vertex_shader, (void *)triangle_fragment_shader);
 
     data->triangle.vertices = (vertex_ *)malloc(3 * sizeof(vertex_));
     data->triangle.num_vertices = 3;
-    data->triangle.vertices[0].pos = (vec4f){ -0.5f, -0.5f, 0.0f, 1.0f };
+    data->triangle.vertices[0].pos = (vec4f){ 0.5f, 0.5f, 0.0f, 1.0f };
     data->triangle.vertices[0].colour.packed = 0xFF0000;
-    data->triangle.vertices[1].pos = (vec4f){ 0.5f, -0.5f, 0.0f, 1.0f };
+    data->triangle.vertices[1].pos = (vec4f){ -0.5f, 0.5f, 0.0f, 1.0f };
     data->triangle.vertices[1].colour.packed = 0x00FF00;
-    data->triangle.vertices[2].pos = (vec4f){ 0.0f, 0.5f, 0.0f, 1.0f };
+    data->triangle.vertices[2].pos = (vec4f){ 0.0f, -0.5f, 0.0f, 1.0f };
     data->triangle.vertices[2].colour.packed = 0x0000FF;
 }
 
 void scn_triangle_process_events(scn_triangle_data_ *data)
 {
-    window_pump_messages(data->app->window);
+    if (is_key_pressed(&data->app->window->input, ESC))
+    {
+        scn_triangle_shutdown(data);
+    }
 }
 
 void scn_triangle_update(scn_triangle_data_ *data)
@@ -41,13 +40,12 @@ void scn_triangle_update(scn_triangle_data_ *data)
 void scn_triangle_render(scn_triangle_data_ *data)
 {
     renderer_clear(&data->app->renderer);
-
     renderer_draw(&data->app->renderer, &data->triangle, &data->shader);
-
     window_swap_buffers(data->app->window);
 }
 
 void scn_triangle_shutdown(scn_triangle_data_ *data)
 {
-    printf("Shutting Down\n");
+    free(data->triangle.vertices);
+    scene_remove(&data->app->scene_manager);
 }

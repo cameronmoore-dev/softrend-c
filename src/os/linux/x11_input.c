@@ -6,6 +6,14 @@ key get_platform_key(u32 keycode);
 
 bool is_key_pressed(input_ *input, key key)
 {
+    bool pressed = input->inputs[key];
+    input->inputs[key] = false;
+
+    return pressed;
+}
+
+bool is_key_held(input_ *input, key key)
+{
     return input->inputs[key];
 }
 
@@ -39,12 +47,12 @@ key get_platform_key(u32 keycode)
         case XK_4: key = NUM4; break;
         case XK_5: key = NUM5; break;
         case XK_6: key = NUM6; break;
-        case XK_Q: key = KEY_Q; break;
-        case XK_W: key = KEY_W; break;
-        case XK_E: key = KEY_E; break;
-        case XK_A: key = KEY_A; break;
-        case XK_S: key = KEY_S; break;
-        case XK_D: key = KEY_D; break;
+        case XK_q: key = KEY_Q; break;
+        case XK_w: key = KEY_W; break;
+        case XK_e: key = KEY_E; break;
+        case XK_a: key = KEY_A; break;
+        case XK_s: key = KEY_S; break;
+        case XK_d: key = KEY_D; break;
         case XK_Escape: key = ESC; break;
 
         default: break;

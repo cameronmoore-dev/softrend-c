@@ -10,7 +10,7 @@ camera_ camera_init()
         .position = { .x = 0.0f, .y = 0.0f, .z = -10.0f },
         .forward  = { .x = 0.0f, .y = 0.0f, .z = -1.0f },
         .yaw = -90.0f,
-        .sensitivity = 5.0f,
+        .sensitivity = 10.0f,
         .move_speed = 5.0f,
     };
 
@@ -38,9 +38,9 @@ void camera_update_position(camera_ *camera, input_ *input, f32 delta_time)
     vec3f c = cross(&camera->forward, &world_up);
     vec3f right = normalize(&c);
 
-    vec3f f = vec3_mul_flt(&camera->forward, (f32)((s32)is_key_pressed(input, KEY_W) - (s32)is_key_pressed(input, KEY_S)));
-    vec3f r = vec3_mul_flt(&right,           (f32)((s32)is_key_pressed(input, KEY_D) - (s32)is_key_pressed(input, KEY_A)));
-    vec3f u = vec3_mul_flt(&world_up,        (f32)((s32)is_key_pressed(input, KEY_Q) - (s32)is_key_pressed(input, KEY_E)));
+    vec3f f = vec3_mul_flt(&camera->forward, (f32)((s32)is_key_held(input, KEY_W) - (s32)is_key_held(input, KEY_S)));
+    vec3f r = vec3_mul_flt(&right,           (f32)((s32)is_key_held(input, KEY_D) - (s32)is_key_held(input, KEY_A)));
+    vec3f u = vec3_mul_flt(&world_up,        (f32)((s32)is_key_held(input, KEY_E) - (s32)is_key_held(input, KEY_Q)));
 
     f = vec3_mul_flt(&f, camera->move_speed * delta_time);
     r = vec3_mul_flt(&r, camera->move_speed * delta_time);
@@ -56,11 +56,6 @@ void camera_update_rotation(camera_ *camera, input_ *input, f32 delta_time)
     camera->yaw   += input->mouse_dx * camera->sensitivity * delta_time;
     camera->pitch += input->mouse_dy * camera->sensitivity * delta_time;
     camera->pitch = clampf(camera->pitch, -89.0f, 89.0f);
-
-    // NOTE: The mouse delta only gets updated when a mouse event has been triggered by the OS,
-    //       this means that the mouse delta never goes back to 0, and the rotation will drift
-    input->mouse_dx = 0;
-    input->mouse_dy = 0;
 
     f32 ryaw    = degrees_to_radians(camera->yaw);
     f32 rpitch  = degrees_to_radians(camera->pitch);
