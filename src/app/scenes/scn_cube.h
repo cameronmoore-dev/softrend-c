@@ -1,8 +1,8 @@
 #pragma once
 
 #include "app/app_context.h"
-#include "app/loaders/mesh_loader.h"
-#include "app/loaders/img_loader.h"
+#include "app/resource/mesh.h"
+#include "app/resource/image.h"
 #include "app/shaders/shd_cube.h"
 #include "app/camera.h"
 

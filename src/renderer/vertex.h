@@ -6,6 +6,7 @@
 typedef struct vertex
 {
     vec4f pos;
+    vec3f normal;
     vec2f uv;
     colour_ colour;
 } vertex_;

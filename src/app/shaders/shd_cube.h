@@ -2,7 +2,7 @@
 
 #include "renderer/_math.h"
 #include "renderer/vertex.h"
-#include "app/loaders/img_loader.h"
+#include "app/resource/image.h"
 
 typedef struct
 {

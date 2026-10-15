@@ -3,7 +3,7 @@
 #include "renderer/shader.h"
 #include "renderer/colour.h"
 #include "os/window.h"
-#include "app/loaders/mesh_loader.h"
+#include "app/resource/mesh.h"
 
 typedef struct
 {

@@ -146,9 +146,9 @@ void renderer_draw(renderer_ *renderer, mesh_ *mesh, shader_ *shader)
     {
         vertex_ input[MAX_OUTPUT_VERTICES] = 
         { 
-            shader->vertex(shader->data, &mesh->vertices[i]), 
-            shader->vertex(shader->data, &mesh->vertices[i + 1]), 
-            shader->vertex(shader->data, &mesh->vertices[i + 2]) 
+            shader->vertex(shader->data, darr_at(mesh->vertices, i + 0)),
+            shader->vertex(shader->data, darr_at(mesh->vertices, i + 1)),
+            shader->vertex(shader->data, darr_at(mesh->vertices, i + 2)),
         };
 
         u32 num_vertices = 3;

@@ -42,7 +42,6 @@ void stack_close(stack_ *stack)
 void stack_push(stack_ **pp_stack, void *elem)
 {
     u32 buf_size = sizeof(stack_) + sizeof(uintptr_t) * ++(*pp_stack)->count;
-
     void *tmp = realloc((*pp_stack), buf_size);
     if (tmp)
     {

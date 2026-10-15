@@ -11,8 +11,8 @@ add_executable(softrend-c
     src/app/app_context.c
     src/app/camera.c
     src/app/scene_manager.c
-    src/app/loaders/obj_loader.c
-    src/app/loaders/tga_loader.c
+    src/app/resource/obj_loader.c
+    src/app/resource/tga_loader.c
 
     src/app/shaders/shd_triangle.c
     src/app/shaders/shd_cube.c
@@ -27,6 +27,7 @@ add_executable(softrend-c
     src/renderer/colour.c
     
     src/data_structures/stack.c
+    src/data_structures/darr.c
 )
 
 if(WIN32)

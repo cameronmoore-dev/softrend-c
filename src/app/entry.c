@@ -36,7 +36,7 @@ int main(void)
 
         window_sleep(app.window);
         
-        printf("FPS: %.1f\n", (1.0f/delta_time));
+        // printf("FPS: %.1f\n", (1.0f/delta_time));
     }
 
     app_context_close(&app);
