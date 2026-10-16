@@ -2,6 +2,7 @@
 
 #include "scn_triangle.h"
 #include "scn_cube.h"
+#include "scn_suzanne.h"
 
 void scn_mainmenu_init(scene_funcs_ *funcs)
 {
@@ -45,6 +46,18 @@ void scn_mainmenu_process_events(scn_mainmenu_data_ *data)
         scn_cube.data = (void *)&cube_data;
         scn_cube_init(&scn_cube.funcs);
         scene_add(&data->app->scene_manager, &scn_cube, sizeof(scn_cube_data_));
+    }
+
+    else if (is_key_pressed(input, NUM3))
+    {
+        scn_suzanne_data_ suzanne_data;
+        suzanne_data.app = data->app;
+        suzanne_data.delta_time = data->delta_time;
+
+        scene_ scn_suzanne;
+        scn_suzanne.data = (void *)&suzanne_data;
+        scn_suzanne_init(&scn_suzanne.funcs);
+        scene_add(&data->app->scene_manager, &scn_suzanne, sizeof(scn_suzanne_data_));
     }
 }
 

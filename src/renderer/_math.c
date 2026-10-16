@@ -1,32 +1,9 @@
 #include "_math.h"
 
 #include <math.h>
+#include <string.h>
 
 #define array_count(x) (sizeof(x) / sizeof((x)[0]))
-
-vec3f vec3_mul_flt(vec3f *v, f32 f)
-{
-    vec3f result = 
-    {
-        .x = v->x * f,
-        .y = v->y * f,
-        .z = v->z * f
-    };
-    
-    return result;
-}
-
-vec3f vec3_sub(vec3f *a, vec3f *b)
-{
-    vec3f result = 
-    {
-        .x = a->x - b->x,
-        .y = a->y - b->y,
-        .z = a->z - b->z,
-    };
-
-    return result;
-}
 
 vec2f vec2_mul(vec2f a, vec2f b)
 {
@@ -47,6 +24,55 @@ vec3f vec3_mul(vec3f *a, vec3f *b)
     return v;
 }
 
+vec3f vec3_mul_flt(vec3f *v, f32 f)
+{
+    vec3f result = 
+    {
+        .x = v->x * f,
+        .y = v->y * f,
+        .z = v->z * f
+    };
+    
+    return result;
+}
+
+vec3f vec3_add(vec3f *a, vec3f *b)
+{
+    vec3f result = 
+    {
+        .x = a->x + b->x,
+        .y = a->y + b->y,
+        .z = a->z + b->z,
+    };
+
+    return result;
+}
+
+vec3f vec3_sub(vec3f *a, vec3f *b)
+{
+    vec3f result = 
+    {
+        .x = a->x - b->x,
+        .y = a->y - b->y,
+        .z = a->z - b->z,
+    };
+
+    return result;
+}
+
+vec4f vec4_add(vec4f *a, vec4f *b)
+{
+    vec4f result = 
+    {
+        .x = a->x + b->x,
+        .y = a->y + b->y,
+        .z = a->z + b->z,
+        .w = a->w + b->w
+    };
+
+    return result;
+}
+
 vec4f vec4_mul(vec4f *a, vec4f *b)
 {
     vec4f v;
@@ -56,6 +82,18 @@ vec4f vec4_mul(vec4f *a, vec4f *b)
     v.w = a->w * b->w;
 
     return v;
+}
+
+vec3f mat4_mul_vec3(mat4 *mat, vec3f *vec)
+{
+    vec3f result = 
+    {
+        .x = mat->m[0][0] * vec->x + mat->m[0][1] * vec->y + mat->m[0][2] * vec->z,
+        .y = mat->m[1][0] * vec->x + mat->m[1][1] * vec->y + mat->m[1][2] * vec->z,
+        .z = mat->m[2][0] * vec->x + mat->m[2][1] * vec->y + mat->m[2][2] * vec->z
+    };
+    
+    return result;
 }
 
 vec4f mat4_mul_vec4(mat4 *mat, vec4f *vec)
@@ -255,4 +293,24 @@ vec4f vec2_to_vec4(vec2f vec, f32 z, f32 w)
 vec4f vec3_to_vec4(vec3f *vec, f32 w)
 {
     return (vec4f){ vec->x, vec->y, vec->z, w };
+}
+
+vec3f vec4_to_vec3(vec4f *vec)
+{
+    return (vec3f){ .x = vec->x, .y = vec->y, .z = vec->z };
+}
+
+vec2f vec2(f32 value)
+{
+    return (vec2f){ .x = value, .y = value };
+}
+
+vec3f vec3(f32 value)
+{
+    return (vec3f){ .x = value, .y = value, .z = value };
+}
+
+vec4f vec4(f32 value)
+{
+    return (vec4f){ .x = value, .y = value, .z = value, .w = value };
 }

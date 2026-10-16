@@ -16,10 +16,12 @@ add_executable(softrend-c
 
     src/app/shaders/shd_triangle.c
     src/app/shaders/shd_cube.c
+    src/app/shaders/shd_suzanne.c
 
     src/app/scenes/scn_mainmenu.c
     src/app/scenes/scn_triangle.c
     src/app/scenes/scn_cube.c
+    src/app/scenes/scn_suzanne.c
 
     src/renderer/renderer.c
     src/renderer/shader.c

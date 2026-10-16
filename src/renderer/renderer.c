@@ -102,6 +102,9 @@ vertex_ interpolate_vertex(vertex_ *a, vertex_ *b, u32 plane)
         .pos.y = a->pos.y + (b->pos.y - a->pos.y) * t,
         .pos.z = a->pos.z + (b->pos.z - a->pos.z) * t,
         .pos.w = a->pos.w + (b->pos.w - a->pos.w) * t,
+        .normal.x = a->normal.x + (b->normal.x - a->normal.x) * t,
+        .normal.y = a->normal.y + (b->normal.y - a->normal.y) * t,
+        .normal.z = a->normal.z + (b->normal.z - a->normal.z) * t,
         .uv.x = a->uv.x + (b->uv.x - a->uv.x) * t,
         .uv.y = a->uv.y + (b->uv.y - a->uv.y) * t
     };

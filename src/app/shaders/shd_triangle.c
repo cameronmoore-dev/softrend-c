@@ -19,6 +19,6 @@ bool triangle_fragment_shader(triangle_shader_data_ *data, vec3f *point, vertex_
         .z = (point->x * c0.z) + (point->y * c1.z) + (point->z * c2.z)
     };
 
-    *colour = rgba_to_packed(final);
+    *colour = rgba_to_packed(&final);
     return true;
 }

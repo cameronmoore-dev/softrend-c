@@ -47,12 +47,17 @@ mat4 orthographic_matrix(f32 left, f32 right, f32 bottom, f32 top, f32 z_near, f
 void lookat_matrix(mat4 *mat, vec3f *pos, vec3f *forward, vec3f *up);
 mat4 matrix_rotate(f32 angle, vec3f *axis);
 
+vec2f vec2_mul(vec2f a, vec2f b);
+
+vec3f vec3_mul(vec3f *a, vec3f *b);
 vec3f vec3_mul_flt(vec3f *v, f32 f);
+vec3f vec3_add(vec3f *a, vec3f *b);
 vec3f vec3_sub(vec3f *a, vec3f *b);
 
-vec2f vec2_mul(vec2f a, vec2f b);
-vec3f vec3_mul(vec3f *a, vec3f *b);
+vec4f vec4_add(vec4f *a, vec4f *b);
 vec4f vec4_mul(vec4f *a, vec4f *b);
+
+vec3f mat4_mul_vec3(mat4 *mat, vec3f *vec);
 vec4f mat4_mul_vec4(mat4 *mat, vec4f *vec);
 mat4  mat4_mul(const mat4 *a, const mat4 *b);
 
@@ -68,3 +73,8 @@ f32 clampf(f32 value, f32 min, f32 max);
 vec3f vec2_to_vec3(vec2f vec, f32 z);
 vec4f vec2_to_vec4(vec2f vec, f32 z, f32 w);
 vec4f vec3_to_vec4(vec3f *vec, f32 w);
+vec3f vec4_to_vec3(vec4f *vec);
+
+vec2f vec2(f32 value);
+vec3f vec3(f32 value);
+vec4f vec4(f32 value);

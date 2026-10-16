@@ -10,7 +10,7 @@ shader_ shader_init(void *shader_data, vertex_(*vertex)(void*, vertex_*), bool(*
     return s;
 }
 
-u32 sample_texture(vertex_ *face, image_ *texture, vec3f *barycentric)
+colour_ sample_texture(vertex_ *face, image_ *texture, vec3f *barycentric)
 {
     f32 inv_w0 = 1.0f / face[0].pos.w;
     f32 inv_w1 = 1.0f / face[1].pos.w;
@@ -35,10 +35,10 @@ u32 sample_texture(vertex_ *face, image_ *texture, vec3f *barycentric)
     u32 x = (u32)(corrected_uv.x * texture->width);
     u32 y = (u32)(corrected_uv.y * texture->height);
 
-    return texture->pixels[x + y * texture->width];
+    return colour(texture->pixels[x + y * texture->width]);
 }
 
-u32 sample_texture_affine(vertex_ *face, image_ *texture, vec3f *barycentric)
+colour_ sample_texture_affine(vertex_ *face, image_ *texture, vec3f *barycentric)
 {
     vec2f linear_uv = 
     {
@@ -49,5 +49,5 @@ u32 sample_texture_affine(vertex_ *face, image_ *texture, vec3f *barycentric)
     u32 x = (u32)(linear_uv.x * texture->width);
     u32 y = (u32)(linear_uv.y * texture->height);
 
-    return texture->pixels[x + y * texture->width];
+    return colour(texture->pixels[x + y * texture->width]);
 }

@@ -7,7 +7,7 @@ camera_ camera_init()
     camera_ camera = 
     {
         .projection = perspective_matrix(45.0f, 640/480, 0.5f, 15.f),
-        .position = { .x = 0.0f, .y = 0.0f, .z = -10.0f },
+        .position = { .x = 0.0f, .y = 0.0f, .z = -5.0f },
         .forward  = { .x = 0.0f, .y = 0.0f, .z = -1.0f },
         .yaw = -90.0f,
         .sensitivity = 10.0f,
@@ -22,12 +22,7 @@ camera_ camera_init()
 void camera_update_view(camera_ *camera)
 {
     vec3f up  = { .x = 0.0f, .y = 1.0f, .z = 0.0f };
-    vec3f dir = 
-    { 
-        .x = camera->position.x + camera->forward.x,
-        .y = camera->position.y + camera->forward.y,
-        .z = camera->position.z + camera->forward.z
-    };
+    vec3f dir = vec3_add(&camera->position, &camera->forward);
 
     lookat_matrix(&camera->view, &camera->position, &dir, &up);
 }

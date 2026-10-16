@@ -42,7 +42,7 @@ image_ image_load(const char *path)
         .bpp = tga.bitsPerPixel / 8
     };
 
-    assert((image.bpp == 3 || image.bpp == 4) && "1 and 2 byte pixel depth images are not supported!");
+    // assert((image.bpp == 3 || image.bpp == 4) && "1 and 2 byte pixel depth images are not supported!");
 
     image.pixels = (u32 *)malloc(image.width * image.height * sizeof(u32));
 
@@ -81,7 +81,6 @@ void image_free(image_ *image)
     free(image->pixels);
 }
 
-
 void read_uncompressed(FILE* file, image_ *image, bool has_alpha)
 {
     for (u32 i = 0; i < image->width * image->height; i++)
@@ -90,10 +89,20 @@ void read_uncompressed(FILE* file, image_ *image, bool has_alpha)
         fread(image_pixel, image->bpp, 1, file);
 
         u8 *buffer_pixel = (u8 *)&image->pixels[i];
-        buffer_pixel[0] = image_pixel[0];
-        buffer_pixel[1] = image_pixel[1];
-        buffer_pixel[2] = image_pixel[2];
-        buffer_pixel[3] = (has_alpha) ? image_pixel[3] : 255;
+        if (image->bpp == 1)
+        {
+            buffer_pixel[0] = image_pixel[0];
+            buffer_pixel[1] = image_pixel[0];
+            buffer_pixel[2] = image_pixel[0];
+            buffer_pixel[3] = 255;
+        }
+        else
+        {
+            buffer_pixel[0] = image_pixel[0];
+            buffer_pixel[1] = image_pixel[1];
+            buffer_pixel[2] = image_pixel[2];
+            buffer_pixel[3] = (has_alpha) ? image_pixel[3] : 255;
+        }
     }
 }
 
@@ -125,10 +134,20 @@ void read_raw_packet(FILE* file, image_ *image, u8 chunk_header, u32 *current_pi
         fread(image_pixel, image->bpp, 1, file);
 
         u8 *buffer_pixel = (u8 *)&image->pixels[*current_pixel];
-        buffer_pixel[0] = image_pixel[0];
-        buffer_pixel[1] = image_pixel[1];
-        buffer_pixel[2] = image_pixel[2];
-        buffer_pixel[3] = (has_alpha) ? image_pixel[3] : 255;
+        if (image->bpp == 1)
+        {
+            buffer_pixel[0] = image_pixel[0];
+            buffer_pixel[1] = image_pixel[0];
+            buffer_pixel[2] = image_pixel[0];
+            buffer_pixel[3] = 255;
+        }
+        else
+        {
+            buffer_pixel[0] = image_pixel[0];
+            buffer_pixel[1] = image_pixel[1];
+            buffer_pixel[2] = image_pixel[2];
+            buffer_pixel[3] = (has_alpha) ? image_pixel[3] : 255;
+        }
 
         *current_pixel += 1;
     }
@@ -142,10 +161,20 @@ void read_rle_packet(FILE* file, image_ *image, u8 chunk_header, u32 *current_pi
     for (u32 i = 0; i < chunk_header; i++)
     {
         u8 *buffer_pixel = (u8 *)&image->pixels[*current_pixel];
-        buffer_pixel[0] = image_pixel[0];
-        buffer_pixel[1] = image_pixel[1];
-        buffer_pixel[2] = image_pixel[2];
-        buffer_pixel[3] = (has_alpha) ? image_pixel[3] : 255;
+        if (image->bpp == 1)
+        {
+            buffer_pixel[0] = image_pixel[0];
+            buffer_pixel[1] = image_pixel[0];
+            buffer_pixel[2] = image_pixel[0];
+            buffer_pixel[3] = 255;
+        }
+        else
+        {
+            buffer_pixel[0] = image_pixel[0];
+            buffer_pixel[1] = image_pixel[1];
+            buffer_pixel[2] = image_pixel[2];
+            buffer_pixel[3] = (has_alpha) ? image_pixel[3] : 255;
+        }
 
         *current_pixel += 1;
     }

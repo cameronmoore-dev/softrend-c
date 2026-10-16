@@ -9,9 +9,10 @@ int main(void)
     printf("Hello World!\n");
 
     app_context_ app;
-    app.window = window_create("1.Triangle  2.Cube", 640, 480);
+    app.window = window_create("1.Triangle  2.Cube  3.Suzanne", 640, 480);
     app.renderer = renderer_init(&app.window->backbuffer, 0x111111);
     app.scene_manager = scene_manager_init();
+
     f64 delta_time;
 
     scn_mainmenu_data_ mainmenu_data = {};
@@ -35,8 +36,8 @@ int main(void)
         current_scene(&app.scene_manager)->funcs.render(current_scene(&app.scene_manager)->data);
 
         window_sleep(app.window);
-        
-        // printf("FPS: %.1f\n", (1.0f/delta_time));
+
+        printf("FPS: %.1f\n", (1.0f/delta_time));
     }
 
     app_context_close(&app);
