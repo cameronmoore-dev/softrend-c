@@ -11,8 +11,10 @@ add_executable(softrend-c
     src/app/app_context.c
     src/app/camera.c
     src/app/scene_manager.c
-    src/app/resource/obj_loader.c
-    src/app/resource/tga_loader.c
+    src/app/resource/mesh.c
+    src/app/resource/image.c
+    src/app/resource/obj.c
+    src/app/resource/tga.c
 
     src/app/shaders/shd_triangle.c
     src/app/shaders/shd_cube.c

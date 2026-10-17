@@ -14,6 +14,17 @@ vec2f vec2_mul(vec2f a, vec2f b)
     return v;
 }
 
+vec2f vec2_sub(vec2f a, vec2f b)
+{
+    vec2f result = 
+    {
+        .x = a.x - b.x,
+        .y = a.y - b.y
+    };
+
+    return result;
+}
+
 vec3f vec3_mul(vec3f *a, vec3f *b)
 {
     vec3f v;
@@ -60,14 +71,13 @@ vec3f vec3_sub(vec3f *a, vec3f *b)
     return result;
 }
 
-vec4f vec4_add(vec4f *a, vec4f *b)
+vec3f vec3_sub_flt(vec3f *a, f32 f)
 {
-    vec4f result = 
+    vec3f result = 
     {
-        .x = a->x + b->x,
-        .y = a->y + b->y,
-        .z = a->z + b->z,
-        .w = a->w + b->w
+        .x = a->x - f,
+        .y = a->y - f,
+        .z = a->z - f,
     };
 
     return result;
@@ -82,6 +92,70 @@ vec4f vec4_mul(vec4f *a, vec4f *b)
     v.w = a->w * b->w;
 
     return v;
+}
+
+vec4f vec4_mul_flt(vec4f *a, f32 f)
+{
+    vec4f result = 
+    {
+        .x = a->x * f,
+        .y = a->y * f,
+        .z = a->z * f,
+        .w = a->w * f
+    };
+
+    return result;
+}
+
+vec4f vec4_add(vec4f *a, vec4f *b)
+{
+    vec4f result = 
+    {
+        .x = a->x + b->x,
+        .y = a->y + b->y,
+        .z = a->z + b->z,
+        .w = a->w + b->w
+    };
+
+    return result;
+}
+
+vec4f vec4_sub(vec4f *a, vec4f *b)
+{
+    vec4f result = 
+    {
+        .x = a->x - b->x,
+        .y = a->y - b->y,
+        .z = a->z - b->z,
+        .w = a->w - b->w
+    };
+
+    return result;
+}
+
+vec4f vec4_sub_flt(vec4f *a, f32 f)
+{
+    vec4f result = 
+    {
+        .x = a->x - f,
+        .y = a->y - f,
+        .z = a->z - f,
+        .w = a->w - f
+    };
+
+    return result;
+}
+
+vec3f mat3_mul_vec3(mat3 *mat, vec3f *vec)
+{
+    vec3f result = 
+    {
+        .x = mat->m[0][0] * vec->x + mat->m[0][1] * vec->y + mat->m[0][2] * vec->z,
+        .y = mat->m[1][0] * vec->x + mat->m[1][1] * vec->y + mat->m[1][2] * vec->z,
+        .z = mat->m[2][0] * vec->x + mat->m[2][1] * vec->y + mat->m[2][2] * vec->z
+    };
+    
+    return result;
 }
 
 vec3f mat4_mul_vec3(mat4 *mat, vec3f *vec)
@@ -169,6 +243,24 @@ mat4 orthographic_matrix(f32 left, f32 right, f32 bottom, f32 top, f32 z_near, f
         .m[2][2] = 2.0f / (z_far - z_near),
         .m[2][3] = -(z_far + z_near) / (z_far - z_near),
         .m[3][3] = 1.0f
+    };
+
+    return result;
+}
+
+mat3 tbn_matrix(vec3f *t, vec3f *b, vec3f *n)
+{
+    mat3 result = 
+    {
+        .m[0][0] = t->x,
+        .m[1][0] = t->y,
+        .m[2][0] = t->z,
+        .m[0][1] = b->x,
+        .m[1][1] = b->y,
+        .m[2][1] = b->z,
+        .m[0][2] = n->x,
+        .m[1][2] = n->y,
+        .m[2][2] = n->z,
     };
 
     return result;

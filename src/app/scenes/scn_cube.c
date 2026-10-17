@@ -1,7 +1,7 @@
 #include "scn_cube.h"
 
-#include "app/resource/img_loader.h"
-#include "app/resource/mesh_loader.h"
+#include "app/resource/image.h"
+#include "app/resource/mesh.h"
 
 void scn_cube_init(scene_funcs_ *funcs)
 {

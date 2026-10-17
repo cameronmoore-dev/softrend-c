@@ -1,8 +1,6 @@
 #include "app/scenes/scn_triangle.h"
-#include "app/resource/mesh_loader.h"
+#include "app/resource/mesh.h"
 #include "data_structures/darr.h"
-
-#include <stdlib.h>
 
 void scn_triangle_init(scene_funcs_ *funcs)
 {

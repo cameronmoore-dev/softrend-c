@@ -105,6 +105,12 @@ vertex_ interpolate_vertex(vertex_ *a, vertex_ *b, u32 plane)
         .normal.x = a->normal.x + (b->normal.x - a->normal.x) * t,
         .normal.y = a->normal.y + (b->normal.y - a->normal.y) * t,
         .normal.z = a->normal.z + (b->normal.z - a->normal.z) * t,
+        .tangent.x = a->tangent.x + (b->tangent.x - a->tangent.x) * t,
+        .tangent.y = a->tangent.y + (b->tangent.y - a->tangent.y) * t,
+        .tangent.z = a->tangent.z + (b->tangent.z - a->tangent.z) * t,
+        .bitangent.x = a->bitangent.x + (b->bitangent.x - a->bitangent.x) * t,
+        .bitangent.y = a->bitangent.y + (b->bitangent.y - a->bitangent.y) * t,
+        .bitangent.z = a->bitangent.z + (b->bitangent.z - a->bitangent.z) * t,
         .uv.x = a->uv.x + (b->uv.x - a->uv.x) * t,
         .uv.y = a->uv.y + (b->uv.y - a->uv.y) * t
     };

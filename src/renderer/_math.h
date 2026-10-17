@@ -44,18 +44,26 @@ typedef struct
 mat4 mat4_identity();
 mat4 perspective_matrix(f32 fov, f32 aspect, f32 z_near, f32 z_far);
 mat4 orthographic_matrix(f32 left, f32 right, f32 bottom, f32 top, f32 z_near, f32 z_far);
+mat3 tbn_matrix(vec3f *t, vec3f *b, vec3f *n);
 void lookat_matrix(mat4 *mat, vec3f *pos, vec3f *forward, vec3f *up);
 mat4 matrix_rotate(f32 angle, vec3f *axis);
 
 vec2f vec2_mul(vec2f a, vec2f b);
+vec2f vec2_sub(vec2f a, vec2f b);
 
 vec3f vec3_mul(vec3f *a, vec3f *b);
 vec3f vec3_mul_flt(vec3f *v, f32 f);
 vec3f vec3_add(vec3f *a, vec3f *b);
 vec3f vec3_sub(vec3f *a, vec3f *b);
+vec3f vec3_sub_flt(vec3f *a, f32 f);
 
-vec4f vec4_add(vec4f *a, vec4f *b);
 vec4f vec4_mul(vec4f *a, vec4f *b);
+vec4f vec4_mul_flt(vec4f *a, f32 f);
+vec4f vec4_add(vec4f *a, vec4f *b);
+vec4f vec4_sub(vec4f *a, vec4f *b);
+vec4f vec4_sub_flt(vec4f *a, f32 f);
+
+vec3f mat3_mul_vec3(mat3 *mat, vec3f *vec);
 
 vec3f mat4_mul_vec3(mat4 *mat, vec3f *vec);
 vec4f mat4_mul_vec4(mat4 *mat, vec4f *vec);

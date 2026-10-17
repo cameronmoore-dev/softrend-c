@@ -1,8 +1,6 @@
-#include "mesh_loader.h"
-
+#include "mesh.h"
 #include "renderer/_math.h"
 
-#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
@@ -93,11 +91,8 @@ mesh_ mesh_load(const char *path)
     darr_close(positions);
     darr_close(normals);
     darr_close(texture_coords);
+
+    compute_tangents(&mesh);
     
     return mesh;
-}
-
-void mesh_free(mesh_ *mesh)
-{
-    darr_close(mesh->vertices);
 }

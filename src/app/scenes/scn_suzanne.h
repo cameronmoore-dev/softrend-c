@@ -12,7 +12,7 @@ typedef struct scn_suzanne_data
     mesh_ mesh;
     image_ albedo;
     image_ specular;
-    //image_ normal_map
+    image_ normal_map;
     suzanne_shader_data_ shader_data;
     shader_ shader;
     mat4 model;

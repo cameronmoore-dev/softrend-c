@@ -9,3 +9,6 @@ typedef struct
     u32 height;
     u32 bpp;
 } image_;
+
+image_ image_load(const char *path);
+void image_free(image_ *image);

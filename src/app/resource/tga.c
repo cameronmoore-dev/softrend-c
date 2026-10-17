@@ -1,4 +1,4 @@
-#include "img_loader.h"
+#include "image.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -42,8 +42,6 @@ image_ image_load(const char *path)
         .bpp = tga.bitsPerPixel / 8
     };
 
-    // assert((image.bpp == 3 || image.bpp == 4) && "1 and 2 byte pixel depth images are not supported!");
-
     image.pixels = (u32 *)malloc(image.width * image.height * sizeof(u32));
 
     bool is_rle = tga.dataTypeCode == 10 || tga.dataTypeCode == 11;
@@ -74,11 +72,6 @@ image_ image_load(const char *path)
 
     fclose(fp);
     return image;
-}
-
-void image_free(image_ *image)
-{
-    free(image->pixels);
 }
 
 void read_uncompressed(FILE* file, image_ *image, bool has_alpha)

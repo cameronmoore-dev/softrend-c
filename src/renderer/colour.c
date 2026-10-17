@@ -18,9 +18,9 @@ colour_ colour(u32 colour)
 colour_ rgb_to_packed(vec3f *colour)
 {
     colour_ c;
-    c.comps[0] = clamp((colour->x * 255.0f));
+    c.comps[2] = clamp((colour->x * 255.0f));
     c.comps[1] = clamp((colour->y * 255.0f));
-    c.comps[2] = clamp((colour->z * 255.0f));
+    c.comps[0] = clamp((colour->z * 255.0f));
 
     return c;
 }
@@ -28,9 +28,9 @@ colour_ rgb_to_packed(vec3f *colour)
 vec3f packed_to_rgb(colour_ colour)
 {
     vec3f c;
-    c.x = (f32)colour.comps[0] / 255.0f;
+    c.x = (f32)colour.comps[2] / 255.0f;
     c.y = (f32)colour.comps[1] / 255.0f;
-    c.z = (f32)colour.comps[2] / 255.0f;
+    c.z = (f32)colour.comps[0] / 255.0f;
 
     return c;
 }
@@ -38,9 +38,9 @@ vec3f packed_to_rgb(colour_ colour)
 colour_ rgba_to_packed(vec4f *colour)
 {
     colour_ c;
-    c.comps[0] = clamp((colour->x * 255.0f));
+    c.comps[2] = clamp((colour->x * 255.0f));
     c.comps[1] = clamp((colour->y * 255.0f));
-    c.comps[2] = clamp((colour->z * 255.0f));
+    c.comps[0] = clamp((colour->z * 255.0f));
     c.comps[3] = clamp((colour->w * 255.0f));
     
     return c;
@@ -49,9 +49,9 @@ colour_ rgba_to_packed(vec4f *colour)
 vec4f packed_to_rgba(colour_ colour)
 {
     vec4f c;
-    c.x = (f32)colour.comps[0] / 255.0f;
+    c.x = (f32)colour.comps[2] / 255.0f;
     c.y = (f32)colour.comps[1] / 255.0f;
-    c.z = (f32)colour.comps[2] / 255.0f;
+    c.z = (f32)colour.comps[0] / 255.0f;
     c.w = (f32)colour.comps[3] / 255.0f;
 
     return c;

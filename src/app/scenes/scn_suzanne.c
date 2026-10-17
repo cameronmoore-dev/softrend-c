@@ -1,7 +1,7 @@
 #include "scn_suzanne.h"
 
-#include "app/resource/img_loader.h"
-#include "app/resource/mesh_loader.h"
+#include "app/resource/image.h"
+#include "app/resource/mesh.h"
 
 #include <math.h>
 
@@ -28,9 +28,10 @@ void scn_suzanne_start(scn_suzanne_data_ *data)
     data->mesh   = mesh_load("./res/models/suzanne.obj");
     data->albedo = image_load("./res/textures/suzanne_albedo.tga");
     data->specular = image_load("./res/textures/suzanne_specular.tga");
+    data->normal_map = image_load("./res/textures/suzanne_normal.tga");
     data->camera = camera_init();
 
-    vec3f axis = { 0.0f, 0.0f, 1.0f };
+    vec3f axis = { 0.5f, 0.0f, 1.0f };
     mat4 transform = mat4_identity();
     mat4 rotation = matrix_rotate(180.0f, &axis);
     mat4 scale = mat4_identity();
@@ -43,6 +44,7 @@ void scn_suzanne_start(scn_suzanne_data_ *data)
     data->shader_data.model = &data->model;
     data->shader_data.albedo = &data->albedo;
     data->shader_data.specular = &data->specular;
+    data->shader_data.normal_map = &data->normal_map;
 }
 
 void scn_suzanne_process_events(scn_suzanne_data_ *data)
@@ -93,7 +95,7 @@ vec3f rotate_lightsource()
     vec3f k = { .x = 1.0f, .y = 1.0f, .z = 0.0f };
 
     // Light direction when rotating around the k axis
-    vec3f v = { .x = 0.0f, .y = 0.0f, .z = 1.0f };
+    vec3f v = { .x = 0.0f, .y = 0.0f, .z = -1.0f };
     vec3f cr = cross(&k, &v);
     f32 scalar = k.x * v.x + k.y * v.y + k.z * v.z;
     f32 scalar_angle = scalar * (1.0f - c);

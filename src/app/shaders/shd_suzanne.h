@@ -12,7 +12,7 @@ typedef struct suzanne_shader_data
 
     image_ *albedo;
     image_ *specular;
-    // image_ *normal_map;
+    image_ *normal_map;
 
     vec3f light_dir;
 } suzanne_shader_data_;
