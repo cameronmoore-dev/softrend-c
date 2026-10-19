@@ -1,16 +1,8 @@
 #include "shader.h"
 
-shader_ shader_init(void *shader_data, vertex_(*vertex)(void*, vertex_*), bool(*fragment)(void*, vec3f*, vertex_*, colour_*))
-{
-    shader_ s;
-    s.vertex = vertex;
-    s.fragment = fragment;
-    s.data = shader_data;
+#include <math.h>
 
-    return s;
-}
-
-colour_ sample_texture(vertex_ *face, image_ *texture, vec3f *barycentric)
+vec2i get_perspective_correct_uv(vertex_ *face, image_ *texture, vec3f *barycentric)
 {
     f32 inv_w0 = 1.0f / face[0].pos.w;
     f32 inv_w1 = 1.0f / face[1].pos.w;
@@ -40,7 +32,84 @@ colour_ sample_texture(vertex_ *face, image_ *texture, vec3f *barycentric)
     u32 x = (u32)(uv.x * texture->width);
     u32 y = (u32)(uv.y * texture->height);
 
-    return colour(texture->pixels[x + y * texture->width]);
+    return (vec2i){ x, y };
+}
+
+u32 texture_wrap(vec2i uv, image_ *texture)
+{
+    vec2f _uv = 
+    { 
+        .x = (f32)uv.x / (f32)texture->width, 
+        .y = (f32)uv.y / (f32)texture->height
+    };
+
+    _uv.x += texture->offset.x;
+    _uv.y += texture->offset.y;
+    _uv.x /= texture->scale.x;
+    _uv.y /= texture->scale.y;
+
+    // if (_uv.x > 0.0f || _uv.x < 1.0f ||
+    //     _uv.y > 0.0f || _uv.y < 1.0f)
+    // {
+    //     return uv.x + uv.y * texture->width;
+    // }
+
+    f32 ufrac = fabsf(_uv.x - (s32)_uv.x);
+    f32 vfrac = fabsf(_uv.y - (s32)_uv.y);
+    u32 x = ufrac * texture->width;
+    u32 y = vfrac * texture->height;
+
+    switch (texture->wrap_type)
+    {
+        case REPEAT:
+        {
+        }break;
+
+        case MIRRORED_REPEAT:
+        {
+            x = fabs((2.0f * ufrac - 1.0f) * texture->width); 
+            y = fabs((2.0f * vfrac - 1.0f) * texture->height);
+        } break;
+
+        case CLAMP_TO_EDGE:
+        {
+            _uv.x = clampf(_uv.x, 0.0f, 1.0f);
+            _uv.y = clampf(_uv.y, 0.0f, 1.0f);
+            x = _uv.x * (texture->width - 1);
+            y = _uv.y * (texture->height - 1);
+        } break;
+
+        case CLAMP_TO_BORDER:
+        {
+            if (_uv.x < 0.0f || _uv.x > 1.0f ||
+                _uv.y < 0.0f || _uv.y > 1.0f)
+            {
+                return 0xFFFF00FF;
+            }
+        } break;
+
+        default: break;
+    }
+
+    return texture->pixels[x + y * texture->width];
+}
+
+shader_ shader_init(void *shader_data, vertex_(*vertex)(void*, vertex_*), bool(*fragment)(void*, vec3f*, vertex_*, colour_*))
+{
+    shader_ s;
+    s.vertex = vertex;
+    s.fragment = fragment;
+    s.data = shader_data;
+
+    return s;
+}
+
+colour_ sample_texture(vertex_ *face, image_ *texture, vec3f *barycentric)
+{
+    vec2i uv = get_perspective_correct_uv(face, texture, barycentric);
+    u32 texture_texel = texture_wrap(uv, texture);
+
+    return colour(texture_texel);
 }
 
 colour_ sample_texture_affine(vertex_ *face, image_ *texture, vec3f *barycentric)

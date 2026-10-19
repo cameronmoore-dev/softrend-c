@@ -3,9 +3,10 @@
 #include "typedefs.h"
 #include "renderer/_math.h"
 
-#define MIRRORED_REPEAT 0
-#define CLAMP_TO_EDGE   1
-#define CLAMP_TO_BORDER 2
+#define REPEAT          0
+#define MIRRORED_REPEAT 1
+#define CLAMP_TO_EDGE   2
+#define CLAMP_TO_BORDER 3
 
 typedef struct
 {

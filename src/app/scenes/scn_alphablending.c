@@ -65,6 +65,10 @@ void scn_alphablending_start(scn_alphablending_data_ *data)
     rs  = mat4_mul(&rotation, &scale);
     trs = mat4_mul(&transform, &rs);
     data->grass_object.model = trs;
+
+    data->window_object.albedo.scale.x = 0.5f;
+    data->window_object.albedo.scale.y = 0.5f;
+    data->grass_object.albedo.wrap_type = MIRRORED_REPEAT;
 }
 
 void scn_alphablending_process_events(scn_alphablending_data_ *data)
@@ -84,6 +88,11 @@ void scn_alphablending_process_events(scn_alphablending_data_ *data)
 
 void scn_alphablending_update(scn_alphablending_data_ *data)
 {
+    data->window_object.albedo.offset.x -= *data->delta_time;
+    data->window_object.albedo.offset.y -= *data->delta_time;
+    data->grass_object.albedo.offset.x += *data->delta_time;
+    data->grass_object.albedo.offset.y += *data->delta_time;
+
     static f32 angle;
     angle += 40.0f * (*data->delta_time);
     if (angle > 360.f) angle -= 360.0f;
@@ -93,7 +102,6 @@ void scn_alphablending_update(scn_alphablending_data_ *data)
     mat4 transform = matrix_translate(&cube_pos);
     mat4 rotation = matrix_rotate(angle, &axis);
     mat4 scale = mat4_identity();
-
     mat4 rs  = mat4_mul(&rotation, &scale);
     mat4 trs = mat4_mul(&transform, &rs);
 
@@ -118,6 +126,10 @@ void scn_alphablending_render(scn_alphablending_data_ *data)
 
 void scn_alphablending_shutdown(scn_alphablending_data_ *data)
 {
+    u32 w = data->app->window->width;
+    u32 h = data->app->window->height;
+    renderer_set_viewport(&data->app->renderer, 0, 0, w, h);
+
     image_free(&data->window_object.albedo);
     mesh_free(&data->window_object.mesh);
 
