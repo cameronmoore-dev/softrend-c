@@ -224,7 +224,19 @@ void rasterize(renderer_ *renderer, face_ *face, shader_ *shader)
                     colour_ frag_colour;
                     if (shader->fragment(shader->data, &point, face->vertices, &frag_colour))
                     {
-                        renderer->drawbuffer->data[buffer_index] = frag_colour.packed;
+                        vec4f c = packed_to_rgba(frag_colour);
+                        vec4f src = 
+                        { 
+                            .x = c.x * c.w,
+                            .y = c.y * c.w,
+                            .z = c.z * c.w,
+                            .w = c.w
+                        };
+                        vec4f dest = packed_to_rgba(colour(renderer->drawbuffer->data[buffer_index]));
+                        dest = vec4_mul_flt(&dest, 1.0f - src.w);
+                        vec4f blended = vec4_add(&src, &dest);
+
+                        renderer->drawbuffer->data[buffer_index] = rgba_to_packed(&blended).packed;
                     }
                 }
             }

@@ -13,7 +13,11 @@ void scn_triangle_init(scene_funcs_ *funcs)
 
 void scn_triangle_start(scn_triangle_data_ *data)
 {
-    data->shader = shader_init((void *)&data->shader_data, (void *)triangle_vertex_shader, (void *)triangle_fragment_shader);
+    data->shader = shader_init(
+        (void *)&data->shader_data, 
+        (void *)triangle_vertex_shader, 
+        (void *)triangle_fragment_shader
+    );
 
     data->triangle.vertices = darr_create(sizeof(vertex_), 3);
     data->triangle.num_vertices = 3;

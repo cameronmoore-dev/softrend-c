@@ -19,11 +19,14 @@ add_executable(softrend-c
     src/app/shaders/shd_triangle.c
     src/app/shaders/shd_cube.c
     src/app/shaders/shd_suzanne.c
+    src/app/shaders/shd_window.c
+    src/app/shaders/shd_grass.c
 
     src/app/scenes/scn_mainmenu.c
     src/app/scenes/scn_triangle.c
     src/app/scenes/scn_cube.c
     src/app/scenes/scn_suzanne.c
+    src/app/scenes/scn_alphablending.c
 
     src/renderer/renderer.c
     src/renderer/shader.c
@@ -52,3 +55,13 @@ endif()
 
 target_include_directories(softrend-c PRIVATE src)
 target_compile_options(softrend-c PRIVATE -Wall)
+
+# Copy the resources folder into the generated executable's folder
+add_custom_command(
+	TARGET softrend-c 
+	POST_BUILD 
+	COMMAND ${CMAKE_COMMAND}
+	-E copy_directory_if_different
+	"${CMAKE_CURRENT_SOURCE_DIR}/res"	
+	"$<TARGET_FILE_DIR:softrend-c>/res"
+)

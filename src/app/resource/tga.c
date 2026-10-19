@@ -39,7 +39,8 @@ image_ image_load(const char *path)
     {
         .width = tga.width,
         .height = tga.height,
-        .bpp = tga.bitsPerPixel / 8
+        .bpp = tga.bitsPerPixel / 8,
+        .scale = (vec2f){ .x = 1.0f, .y = 1.0f }
     };
 
     image.pixels = (u32 *)malloc(image.width * image.height * sizeof(u32));

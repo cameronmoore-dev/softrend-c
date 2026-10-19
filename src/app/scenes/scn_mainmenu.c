@@ -3,6 +3,7 @@
 #include "scn_triangle.h"
 #include "scn_cube.h"
 #include "scn_suzanne.h"
+#include "scn_alphablending.h"
 
 void scn_mainmenu_init(scene_funcs_ *funcs)
 {
@@ -58,6 +59,18 @@ void scn_mainmenu_process_events(scn_mainmenu_data_ *data)
         scn_suzanne.data = (void *)&suzanne_data;
         scn_suzanne_init(&scn_suzanne.funcs);
         scene_add(&data->app->scene_manager, &scn_suzanne, sizeof(scn_suzanne_data_));
+    }
+
+    else if (is_key_pressed(input, NUM4))
+    {
+        scn_alphablending_data_ alphablending_data;
+        alphablending_data.app = data->app;
+        alphablending_data.delta_time = data->delta_time;
+
+        scene_ scn_alphablending;
+        scn_alphablending.data = (void *)&alphablending_data;
+        scn_alphablending_init(&scn_alphablending.funcs);
+        scene_add(&data->app->scene_manager, &scn_alphablending, sizeof(scn_alphablending_data_));
     }
 }
 

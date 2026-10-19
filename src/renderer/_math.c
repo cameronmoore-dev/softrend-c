@@ -304,6 +304,16 @@ void lookat_matrix(mat4 *mat, vec3f *pos, vec3f *forward, vec3f *up)
     mat->m[3][3] = 1.f;
 }
 
+mat4 matrix_translate(vec3f *vec)
+{
+    mat4 result = mat4_identity();
+    result.m[0][3] = vec->x;
+    result.m[1][3] = vec->y;
+    result.m[2][3] = vec->z;
+
+    return result;
+}
+
 mat4 matrix_rotate(f32 angle, vec3f *axis)
 {
     f32 rad = degrees_to_radians(angle);
@@ -323,6 +333,17 @@ mat4 matrix_rotate(f32 angle, vec3f *axis)
     result.m[2][0] = t * ax.x * ax.z - s * ax.y;
     result.m[2][1] = t * ax.y * ax.z + s * ax.x;
     result.m[2][2] = t * ax.z * ax.z + c;
+
+    return result;
+}
+
+mat4 matrix_scale(vec3f *vec)
+{
+    mat4 result = mat4_identity();
+    result.m[0][0] = vec->x;
+    result.m[1][1] = vec->y;
+    result.m[2][2] = vec->z;
+    result.m[3][3] = 1.0f;
 
     return result;
 }

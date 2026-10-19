@@ -30,6 +30,7 @@ void scn_suzanne_start(scn_suzanne_data_ *data)
     data->specular = image_load("./res/textures/suzanne_specular.tga");
     data->normal_map = image_load("./res/textures/suzanne_normal.tga");
     data->camera = camera_init();
+    data->model = mat4_identity();
 
     vec3f axis = { 0.5f, 0.0f, 1.0f };
     mat4 transform = mat4_identity();
@@ -45,6 +46,8 @@ void scn_suzanne_start(scn_suzanne_data_ *data)
     data->shader_data.albedo = &data->albedo;
     data->shader_data.specular = &data->specular;
     data->shader_data.normal_map = &data->normal_map;
+
+    data->shader_data.light_dir = (vec3f){ .x = 0.0f, .y = 0.0f, .z = -1.0f };
 }
 
 void scn_suzanne_process_events(scn_suzanne_data_ *data)
