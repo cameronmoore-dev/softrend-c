@@ -303,3 +303,11 @@ rect_ polygon_screen_bounding_box(face_ *face)
     };
     return bb;
 }
+
+void renderer_set_viewport(renderer_ *renderer, u32 x, u32 y, u32 w, u32 h)
+{
+    renderer->viewport.x = x;
+    renderer->viewport.y = y;
+    renderer->viewport.w = w;
+    renderer->viewport.h = h;
+}

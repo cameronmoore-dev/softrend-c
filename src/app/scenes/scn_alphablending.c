@@ -104,7 +104,12 @@ void scn_alphablending_render(scn_alphablending_data_ *data)
 {
     renderer_clear(&data->app->renderer);
 
+    u32 w = data->app->window->width;
+    u32 h = data->app->window->height;
+    renderer_set_viewport(&data->app->renderer, w/2, h/2, w/2, h/2);
     renderer_draw(&data->app->renderer, &data->cube_object.mesh, &data->cube_object.shader);
+
+    renderer_set_viewport(&data->app->renderer, 0, 0, w/2, h/2);
     renderer_draw(&data->app->renderer, &data->grass_object.mesh, &data->grass_object.shader);
     renderer_draw(&data->app->renderer, &data->window_object.mesh, &data->window_object.shader);
 

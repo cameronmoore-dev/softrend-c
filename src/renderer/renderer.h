@@ -27,3 +27,5 @@ typedef struct
 renderer_ renderer_init(backbuffer_ *drawbuffer, u32 clear_colour);
 void renderer_clear(renderer_ *renderer);
 void renderer_draw(renderer_ *renderer, mesh_* mesh, shader_ *shader);
+
+void renderer_set_viewport(renderer_ *renderer, u32 x, u32 y, u32 w, u32 h);
