@@ -28,6 +28,13 @@ void scn_cube_start(scn_cube_data_ *data)
     data->shader_data.view = &data->camera.view;
     data->shader_data.model = &data->model;
     data->shader_data.albedo = &data->albedo;
+
+    u32 scale = 2;
+    renderer_set_downscale_factor(&data->app->renderer, scale);
+    rendertarget_ rt = {};
+    rt.w = data->app->window->width  / scale;
+    rt.h = data->app->window->height / scale;
+    renderer_set_rendertarget(&data->app->renderer, rt);
 }
 
 void scn_cube_process_events(scn_cube_data_ *data)
@@ -64,6 +71,8 @@ void scn_cube_render(scn_cube_data_ *data)
 {
     renderer_clear(&data->app->renderer);
     renderer_draw(&data->app->renderer, &data->cube, &data->shader);
+    renderer_end_draw(&data->app->renderer);
+    
     window_swap_buffers(data->app->window);
 }
 

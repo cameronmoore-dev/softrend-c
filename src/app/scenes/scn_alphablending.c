@@ -90,8 +90,8 @@ void scn_alphablending_update(scn_alphablending_data_ *data)
 {
     data->window_object.albedo.offset.x -= *data->delta_time;
     data->window_object.albedo.offset.y -= *data->delta_time;
-    data->grass_object.albedo.offset.x += *data->delta_time;
-    data->grass_object.albedo.offset.y += *data->delta_time;
+    data->grass_object.albedo.offset.x  += *data->delta_time;
+    data->grass_object.albedo.offset.y  += *data->delta_time;
 
     static f32 angle;
     angle += 40.0f * (*data->delta_time);
@@ -121,6 +121,8 @@ void scn_alphablending_render(scn_alphablending_data_ *data)
     renderer_draw(&data->app->renderer, &data->grass_object.mesh, &data->grass_object.shader);
     renderer_draw(&data->app->renderer, &data->window_object.mesh, &data->window_object.shader);
 
+    renderer_end_draw(&data->app->renderer);
+
     window_swap_buffers(data->app->window);
 }
 
@@ -130,7 +132,11 @@ void scn_alphablending_shutdown(scn_alphablending_data_ *data)
     u32 h = data->app->window->height;
     renderer_set_viewport(&data->app->renderer, 0, 0, w, h);
 
+    image_free(&data->cube_object.albedo);
+    image_free(&data->grass_object.albedo);
     image_free(&data->window_object.albedo);
+    mesh_free(&data->cube_object.mesh);
+    mesh_free(&data->grass_object.mesh);
     mesh_free(&data->window_object.mesh);
 
     scene_remove(&data->app->scene_manager);

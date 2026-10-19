@@ -32,6 +32,7 @@ void scene_remove(scene_manager_ *manager)
     free(current_scene(manager)->data);
 
     stack_pop(manager->scenes);
+    current_scene(manager)->funcs.start(current_scene(manager)->data);
 }
 
 scene_ *current_scene(scene_manager_ *manager)

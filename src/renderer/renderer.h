@@ -16,16 +16,30 @@ typedef struct
     vertex_ vertices[3];
 } face_;
 
+typedef struct rendertarget
+{
+    u32 x, y;
+    u32 w, h;
+    u32 *colourbuffer;
+    f32 *depthbuffer;
+} rendertarget_;
+
 typedef struct
 {
-    viewport_ viewport;
+    rendertarget_ rendertarget;
     backbuffer_ *drawbuffer;
-    f32 *depthbuffer;
+    viewport_ viewport;
+    vec2i *precomputed_downscale;
     colour_ clear_colour;
+    u32 downscale_factor;
 } renderer_;
 
 renderer_ renderer_init(backbuffer_ *drawbuffer, u32 clear_colour);
+void renderer_close(renderer_ *renderer);
 void renderer_clear(renderer_ *renderer);
 void renderer_draw(renderer_ *renderer, mesh_* mesh, shader_ *shader);
+void renderer_end_draw(renderer_ *renderer);
 
+void renderer_set_rendertarget(renderer_ *renderer, rendertarget_ target);
 void renderer_set_viewport(renderer_ *renderer, u32 x, u32 y, u32 w, u32 h);
+void renderer_set_downscale_factor(renderer_ *renderer, u32 factor);

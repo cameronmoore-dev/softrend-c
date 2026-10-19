@@ -16,6 +16,8 @@ void scn_mainmenu_init(scene_funcs_ *funcs)
 
 void scn_mainmenu_start(scn_mainmenu_data_ *data)
 {
+    renderer_close(&data->app->renderer);
+    data->app->renderer = renderer_init(&data->app->window->backbuffer, 0x111111);
 }
 
 void scn_mainmenu_process_events(scn_mainmenu_data_ *data)
@@ -81,7 +83,7 @@ void scn_mainmenu_update(scn_mainmenu_data_ *data)
 void scn_mainmenu_render(scn_mainmenu_data_ *data)
 {
     renderer_clear(&data->app->renderer);
-
+    renderer_end_draw(&data->app->renderer);
     window_swap_buffers(data->app->window);
 }
 

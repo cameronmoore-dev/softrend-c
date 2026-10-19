@@ -31,40 +31,38 @@ renderer_ renderer_init(backbuffer_ *drawbuffer, u32 clear_colour)
     renderer_ r = {};
     r.drawbuffer = drawbuffer;
     r.viewport = (viewport_){ 0, 0, drawbuffer->width, drawbuffer->height };
-    r.depthbuffer = (f32 *)malloc(drawbuffer->width * drawbuffer->height * sizeof(f32));
     r.clear_colour.packed = clear_colour;
+    r.rendertarget = (rendertarget_)
+   {
+        .colourbuffer = (u32 *)malloc(drawbuffer->width * drawbuffer->height * sizeof(u32)),
+        .depthbuffer  = (f32 *)malloc(drawbuffer->width * drawbuffer->height * sizeof(f32)),
+        .w = drawbuffer->width,
+        .h = drawbuffer->height
+    };
+    r.precomputed_downscale = NULL;
+    r.downscale_factor = 1;
 
     return r;
 }
 
+void renderer_close(renderer_ *renderer)
+{
+    free(renderer->precomputed_downscale);
+    free(renderer->rendertarget.depthbuffer);
+    free(renderer->rendertarget.colourbuffer);
+}
+
 void renderer_clear(renderer_ *renderer)
 {
-    if (!renderer->drawbuffer->data)
+    if (!renderer->rendertarget.colourbuffer)
     {
         return;
     }
 
-    // TODO: Implement a render target types that will hold the draw and depth buffer.
-    //       Then before each clear, check to see of the window's back buffer has changed address,
-    //       if it has then realloc the depth buffer to match the new size
-    static u32 current_buffer_size;
-    if (current_buffer_size != 0 && current_buffer_size != (renderer->drawbuffer->width * renderer->drawbuffer->height))
+    for (u32 i = 0; i < renderer->rendertarget.w * renderer->rendertarget.h; i++)
     {
-        current_buffer_size = (renderer->drawbuffer->width * renderer->drawbuffer->height);
-        f32 *tmp = (f32 *)realloc(renderer->depthbuffer, current_buffer_size * sizeof(f32));
-        if (tmp)
-        {
-            renderer->depthbuffer = tmp;
-        }
-    }
-    //
-
-    u32 buf_size = renderer->drawbuffer->width * renderer->drawbuffer->height;
-    current_buffer_size = buf_size;
-    for (u32 i = 0; i < buf_size; i++)
-    {
-        renderer->drawbuffer->data[i] = renderer->clear_colour.packed;
-        renderer->depthbuffer[i] = INFINITY;
+        renderer->rendertarget.colourbuffer[i] = renderer->clear_colour.packed;
+        renderer->rendertarget.depthbuffer[i]  = INFINITY;
     }
 }
 
@@ -212,15 +210,15 @@ void rasterize(renderer_ *renderer, face_ *face, shader_ *shader)
             bool point_in_polygon = (point.x >= 0.0f && point.y >= 0.0f && point.z >= 0.0f);
             if (point_in_polygon)
             {
-                // u32 flipped_y = renderer->drawbuffer->height - 1.0f - p.y;
-                u32 buffer_index = p.x + p.y * renderer->drawbuffer->width;
+                // u32 flipped_y = renderer->rendertarget.colourbuffer->height - 1.0f - p.y;
+                u32 buffer_index = p.x + p.y * renderer->rendertarget.w;
                 f32 z = face->vertices[0].pos.z * point.x + 
                         face->vertices[1].pos.z * point.y + 
                         face->vertices[2].pos.z * point.z;
 
-                if (z < renderer->depthbuffer[buffer_index])
+                if (z < renderer->rendertarget.depthbuffer[buffer_index])
                 {
-                    renderer->depthbuffer[buffer_index] = z;
+                    renderer->rendertarget.depthbuffer[buffer_index] = z;
                     colour_ frag_colour;
                     if (shader->fragment(shader->data, &point, face->vertices, &frag_colour))
                     {
@@ -232,14 +230,34 @@ void rasterize(renderer_ *renderer, face_ *face, shader_ *shader)
                             .z = c.z * c.w,
                             .w = c.w
                         };
-                        vec4f dest = packed_to_rgba(colour(renderer->drawbuffer->data[buffer_index]));
+                        vec4f dest = packed_to_rgba(colour(renderer->rendertarget.colourbuffer[buffer_index]));
                         dest = vec4_mul_flt(&dest, 1.0f - src.w);
                         vec4f blended = vec4_add(&src, &dest);
 
-                        renderer->drawbuffer->data[buffer_index] = rgba_to_packed(&blended).packed;
+                        renderer->rendertarget.colourbuffer[buffer_index] = rgba_to_packed(&blended).packed;
                     }
                 }
             }
+        }
+    }
+}
+
+void renderer_end_draw(renderer_ *renderer)
+{
+    u32 drawbuffer_size = renderer->drawbuffer->width * renderer->drawbuffer->height;
+    bool buffers_equal = drawbuffer_size == 
+                         renderer->rendertarget.w * renderer->rendertarget.h;
+
+    if (buffers_equal)
+    {
+        memcpy(renderer->drawbuffer->data, renderer->rendertarget.colourbuffer, drawbuffer_size * sizeof(u32));
+    }
+    else
+    {
+        for (u32 i = 0; i < drawbuffer_size; i++)
+        {
+            vec2i coord = renderer->precomputed_downscale[i];
+            renderer->drawbuffer->data[i] = renderer->rendertarget.colourbuffer[coord.x + coord.y * renderer->rendertarget.w];
         }
     }
 }
@@ -304,10 +322,53 @@ rect_ polygon_screen_bounding_box(face_ *face)
     return bb;
 }
 
+void renderer_set_rendertarget(renderer_ *renderer, rendertarget_ target)
+{
+    renderer->rendertarget.colourbuffer = realloc(renderer->rendertarget.colourbuffer, target.w * target.h * sizeof(u32));
+    renderer->rendertarget.depthbuffer  = realloc(renderer->rendertarget.depthbuffer,  target.w * target.h * sizeof(f32));
+    renderer->rendertarget.w = target.w;
+    renderer->rendertarget.h = target.h;
+    // void *tmp = realloc(renderer->rendertarget.colourbuffer, target.w * target.h);
+    // if (tmp)
+    // {
+    //     renderer->rendertarget.colourbuffer = (u32 *)tmp;
+    //     tmp = realloc(renderer->rendertarget.depthbuffer, target.w * target.h);
+    //     if (tmp)
+    //     {
+    //         renderer->rendertarget.depthbuffer = (f32 *)tmp;
+    //     }
+    // }
+    renderer_set_viewport(renderer, target.x, target.y, target.w, target.h);
+}
+
 void renderer_set_viewport(renderer_ *renderer, u32 x, u32 y, u32 w, u32 h)
 {
     renderer->viewport.x = x;
     renderer->viewport.y = y;
     renderer->viewport.w = w;
     renderer->viewport.h = h;
+}
+
+void renderer_set_downscale_factor(renderer_ *renderer, u32 factor)
+{
+    if (renderer->downscale_factor == 1 && factor > 1)
+    {
+        renderer->downscale_factor = factor;
+        u32 buf_size = renderer->drawbuffer->width * renderer->drawbuffer->height;
+        renderer->precomputed_downscale = (vec2i *)malloc(buf_size * sizeof(vec2i));
+
+        u32 target_width  = renderer->drawbuffer->width / factor;
+        u32 target_height = renderer->drawbuffer->height / factor;
+        u32 computed_index = 0;
+        for (u32 y = 0; y < renderer->drawbuffer->height; y++)
+        {
+            for (u32 x = 0; x < renderer->drawbuffer->width; x++)
+            {
+                u32 sx = floorf(x * target_width  / renderer->drawbuffer->width);
+                u32 sy = floorf(y * target_height / renderer->drawbuffer->height);
+                renderer->precomputed_downscale[computed_index] = (vec2i){ sx, sy };
+                computed_index++;
+            }
+        }
+    }
 }

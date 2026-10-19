@@ -35,9 +35,9 @@ int main(void)
         current_scene(&app.scene_manager)->funcs.update(current_scene(&app.scene_manager)->data);
         current_scene(&app.scene_manager)->funcs.render(current_scene(&app.scene_manager)->data);
 
-        window_sleep(app.window);
+        // window_sleep(app.window);
 
-        printf("FPS: %.1f\n", (1.0f/delta_time));
+        // printf("FPS: %.1f\n", (1.0f/delta_time));
     }
 
     app_context_close(&app);

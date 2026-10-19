@@ -5,7 +5,7 @@
 
 #include <math.h>
 
-vec3f rotate_lightsource();
+vec3f rotate_lightsource(f32 delta_time);
 mat4 rotate_suzanne(scn_suzanne_data_ *data);
 
 void scn_suzanne_init(scene_funcs_ *funcs)
@@ -67,7 +67,7 @@ void scn_suzanne_process_events(scn_suzanne_data_ *data)
 
 void scn_suzanne_update(scn_suzanne_data_ *data)
 {
-    data->shader_data.light_dir = rotate_lightsource();
+    data->shader_data.light_dir = rotate_lightsource(*data->delta_time);
     // data->model = rotate_suzanne(data);
 }
 
@@ -75,6 +75,7 @@ void scn_suzanne_render(scn_suzanne_data_ *data)
 {
     renderer_clear(&data->app->renderer);
     renderer_draw(&data->app->renderer, &data->mesh, &data->shader);
+    renderer_end_draw(&data->app->renderer);
     window_swap_buffers(data->app->window);
 }
 
@@ -86,10 +87,10 @@ void scn_suzanne_shutdown(scn_suzanne_data_ *data)
     scene_remove(&data->app->scene_manager);
 }
 
-vec3f rotate_lightsource()
+vec3f rotate_lightsource(f32 delta_time)
 {
     static f32 light_dir_theta;
-    light_dir_theta+=3;
+    light_dir_theta += 50.0f * delta_time;
     if (light_dir_theta > 360.0f) light_dir_theta -= 360.0f;
 
     f32 trad = degrees_to_radians(light_dir_theta);
