@@ -20,6 +20,7 @@ void scn_cube_start(scn_cube_data_ *data)
     );
 
     data->albedo = image_load("./res/textures/texture_dirtcube.tga");
+    bilinear_filter(&data->albedo);
     data->cube = mesh_load("./res/models/cube.obj");
     data->camera = camera_init();
     data->model = mat4_identity();

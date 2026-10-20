@@ -328,16 +328,6 @@ void renderer_set_rendertarget(renderer_ *renderer, rendertarget_ target)
     renderer->rendertarget.depthbuffer  = realloc(renderer->rendertarget.depthbuffer,  target.w * target.h * sizeof(f32));
     renderer->rendertarget.w = target.w;
     renderer->rendertarget.h = target.h;
-    // void *tmp = realloc(renderer->rendertarget.colourbuffer, target.w * target.h);
-    // if (tmp)
-    // {
-    //     renderer->rendertarget.colourbuffer = (u32 *)tmp;
-    //     tmp = realloc(renderer->rendertarget.depthbuffer, target.w * target.h);
-    //     if (tmp)
-    //     {
-    //         renderer->rendertarget.depthbuffer = (f32 *)tmp;
-    //     }
-    // }
     renderer_set_viewport(renderer, target.x, target.y, target.w, target.h);
 }
 

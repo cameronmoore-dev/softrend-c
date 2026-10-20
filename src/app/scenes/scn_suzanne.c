@@ -27,6 +27,7 @@ void scn_suzanne_start(scn_suzanne_data_ *data)
     
     data->mesh   = mesh_load("./res/models/suzanne.obj");
     data->albedo = image_load("./res/textures/suzanne_albedo.tga");
+    bilinear_filter(&data->albedo);
     data->specular = image_load("./res/textures/suzanne_specular.tga");
     data->normal_map = image_load("./res/textures/suzanne_normal.tga");
     data->camera = camera_init();

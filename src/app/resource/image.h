@@ -3,10 +3,10 @@
 #include "typedefs.h"
 #include "renderer/_math.h"
 
-#define REPEAT          0
-#define MIRRORED_REPEAT 1
-#define CLAMP_TO_EDGE   2
-#define CLAMP_TO_BORDER 3
+#define WRAPTYPE_REPEAT          0
+#define WRAPTYPE_MIRRORED_REPEAT 1
+#define WRAPTYPE_CLAMP_TO_EDGE   2
+#define WRAPTYPE_CLAMP_TO_BORDER 3
 
 typedef struct
 {
@@ -21,3 +21,4 @@ typedef struct
 
 image_ image_load(const char *path);
 void image_free(image_ *image);
+void bilinear_filter(image_ *image);

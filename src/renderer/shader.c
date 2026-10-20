@@ -61,17 +61,17 @@ u32 texture_wrap(vec2i uv, image_ *texture)
 
     switch (texture->wrap_type)
     {
-        case REPEAT:
+        case WRAPTYPE_REPEAT:
         {
         }break;
 
-        case MIRRORED_REPEAT:
+        case WRAPTYPE_MIRRORED_REPEAT:
         {
             x = fabs((2.0f * ufrac - 1.0f) * texture->width); 
             y = fabs((2.0f * vfrac - 1.0f) * texture->height);
         } break;
 
-        case CLAMP_TO_EDGE:
+        case WRAPTYPE_CLAMP_TO_EDGE:
         {
             _uv.x = clampf(_uv.x, 0.0f, 1.0f);
             _uv.y = clampf(_uv.y, 0.0f, 1.0f);
@@ -79,7 +79,7 @@ u32 texture_wrap(vec2i uv, image_ *texture)
             y = _uv.y * (texture->height - 1);
         } break;
 
-        case CLAMP_TO_BORDER:
+        case WRAPTYPE_CLAMP_TO_BORDER:
         {
             if (_uv.x < 0.0f || _uv.x > 1.0f ||
                 _uv.y < 0.0f || _uv.y > 1.0f)

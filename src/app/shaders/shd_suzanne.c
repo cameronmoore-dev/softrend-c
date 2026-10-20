@@ -6,7 +6,7 @@
 #include <math.h>
 
 #define SHADE_FLAT 0
-#define NORMAL_MAP 1
+#define NORMAL_MAP 0
 
 f32 max(f32 a, f32 b)
 {

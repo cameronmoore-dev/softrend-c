@@ -68,7 +68,7 @@ void scn_alphablending_start(scn_alphablending_data_ *data)
 
     data->window_object.albedo.scale.x = 0.5f;
     data->window_object.albedo.scale.y = 0.5f;
-    data->grass_object.albedo.wrap_type = MIRRORED_REPEAT;
+    data->grass_object.albedo.wrap_type = WRAPTYPE_MIRRORED_REPEAT;
 }
 
 void scn_alphablending_process_events(scn_alphablending_data_ *data)
