@@ -5,8 +5,6 @@
 #include <math.h>
 #include <string.h>
 
-#include <stdio.h>
-
 #define MAX_OUTPUT_VERTICES 32
 
 #define LEFT_PLANE      0
@@ -48,8 +46,8 @@ renderer_ renderer_init(backbuffer_ *drawbuffer, u32 clear_colour)
 void renderer_close(renderer_ *renderer)
 {
     free(renderer->precomputed_downscale);
-    free(renderer->rendertarget.depthbuffer);
-    free(renderer->rendertarget.colourbuffer);
+    // free(renderer->rendertarget.depthbuffer);
+    // free(renderer->rendertarget.colourbuffer);
 }
 
 void renderer_clear(renderer_ *renderer)
@@ -216,6 +214,15 @@ void rasterize(renderer_ *renderer, face_ *face, shader_ *shader)
                         face->vertices[1].pos.z * point.y + 
                         face->vertices[2].pos.z * point.z;
 
+                if (renderer->renderpass == RENDERPASS_DEPTH)
+                {
+                    if (z < renderer->rendertarget.depthbuffer[buffer_index])
+                    {
+                        renderer->rendertarget.depthbuffer[buffer_index] = z;
+                        continue;
+                    }
+                }
+
                 if (z < renderer->rendertarget.depthbuffer[buffer_index])
                 {
                     renderer->rendertarget.depthbuffer[buffer_index] = z;
@@ -322,10 +329,28 @@ rect_ polygon_screen_bounding_box(face_ *face)
     return bb;
 }
 
+rendertarget_ renderer_create_rendertarget(renderer_ *renderer, u32 x, u32 y, u32 w, u32 h)
+{
+    rendertarget_ target = 
+    {
+        .colourbuffer = (u32 *)malloc(w * h * sizeof(u32)),
+        .depthbuffer  = (f32 *)malloc(w * h * sizeof(f32)),
+        .x = x, .y = y,
+        .w = w, .h = h
+    };
+
+    return target;
+}
+
+void renderer_set_renderpass(renderer_ *renderer, u32 pass_type)
+{
+    renderer->renderpass = pass_type;
+}
+
 void renderer_set_rendertarget(renderer_ *renderer, rendertarget_ target)
 {
-    renderer->rendertarget.colourbuffer = realloc(renderer->rendertarget.colourbuffer, target.w * target.h * sizeof(u32));
-    renderer->rendertarget.depthbuffer  = realloc(renderer->rendertarget.depthbuffer,  target.w * target.h * sizeof(f32));
+    renderer->rendertarget.colourbuffer = target.colourbuffer;
+    renderer->rendertarget.depthbuffer  = target.depthbuffer;
     renderer->rendertarget.w = target.w;
     renderer->rendertarget.h = target.h;
     renderer_set_viewport(renderer, target.x, target.y, target.w, target.h);

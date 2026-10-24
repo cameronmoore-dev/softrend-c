@@ -59,6 +59,18 @@ vec3f vec3_add(vec3f *a, vec3f *b)
     return result;
 }
 
+vec3f vec3_add_flt(vec3f *a, f32 f)
+{
+    vec3f result = 
+    {
+        .x = a->x + f,
+        .y = a->y + f,
+        .z = a->z + f,
+    };
+
+    return result;
+}
+
 vec3f vec3_sub(vec3f *a, vec3f *b)
 {
     vec3f result = 
@@ -78,6 +90,18 @@ vec3f vec3_sub_flt(vec3f *a, f32 f)
         .x = a->x - f,
         .y = a->y - f,
         .z = a->z - f,
+    };
+
+    return result;
+}
+
+vec3f vec3_div_flt(vec3f *a, f32 f)
+{
+    vec3f result = 
+    {
+        .x = a->x / f,
+        .y = a->y / f,
+        .z = a->z / f,
     };
 
     return result;
@@ -236,11 +260,11 @@ mat4 orthographic_matrix(f32 left, f32 right, f32 bottom, f32 top, f32 z_near, f
 {
     mat4 result = 
     {
-        .m[0][0] = 2.0f / (left - right),
+        .m[0][0] = 2.0f / (right - left),
         .m[0][3] = -(right + left) / (right - left),
         .m[1][1] = 2.0f / (top - bottom),
         .m[1][3] = -(top + bottom) / (top - bottom),
-        .m[2][2] = 2.0f / (z_far - z_near),
+        .m[2][2] = -2.0f / (z_far - z_near),
         .m[2][3] = -(z_far + z_near) / (z_far - z_near),
         .m[3][3] = 1.0f
     };
@@ -301,6 +325,9 @@ void lookat_matrix(mat4 *mat, vec3f *pos, vec3f *forward, vec3f *up)
     mat->m[2][2] = -f.z;
     mat->m[2][3] = dot(&f, pos);
 
+    mat->m[3][0] = 0.f;
+    mat->m[3][1] = 0.f;
+    mat->m[3][2] = 0.f;
     mat->m[3][3] = 1.f;
 }
 

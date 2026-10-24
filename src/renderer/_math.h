@@ -56,8 +56,10 @@ vec2f vec2_sub(vec2f a, vec2f b);
 vec3f vec3_mul(vec3f *a, vec3f *b);
 vec3f vec3_mul_flt(vec3f *v, f32 f);
 vec3f vec3_add(vec3f *a, vec3f *b);
+vec3f vec3_add_flt(vec3f *a, f32 f);
 vec3f vec3_sub(vec3f *a, vec3f *b);
 vec3f vec3_sub_flt(vec3f *a, f32 f);
+vec3f vec3_div_flt(vec3f *a, f32 f);
 
 vec4f vec4_mul(vec4f *a, vec4f *b);
 vec4f vec4_mul_flt(vec4f *a, f32 f);

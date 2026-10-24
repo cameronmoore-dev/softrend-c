@@ -4,6 +4,7 @@
 #include "scn_cube.h"
 #include "scn_suzanne.h"
 #include "scn_alphablending.h"
+#include "scn_shadowmapping.h"
 
 void scn_mainmenu_init(scene_funcs_ *funcs)
 {
@@ -73,6 +74,18 @@ void scn_mainmenu_process_events(scn_mainmenu_data_ *data)
         scn_alphablending.data = (void *)&alphablending_data;
         scn_alphablending_init(&scn_alphablending.funcs);
         scene_add(&data->app->scene_manager, &scn_alphablending, sizeof(scn_alphablending_data_));
+    }
+
+    else if (is_key_pressed(input, NUM5))
+    {
+        scn_shadowmapping_data_ shadowmapping_data;
+        shadowmapping_data.app = data->app;
+        shadowmapping_data.delta_time = data->delta_time;
+
+        scene_ scn_shadowmapping;
+        scn_shadowmapping.data = (void *)&shadowmapping_data;
+        scn_shadowmapping_init(&scn_shadowmapping.funcs);
+        scene_add(&data->app->scene_manager, &scn_shadowmapping, sizeof(scn_shadowmapping_data_));
     }
 }
 

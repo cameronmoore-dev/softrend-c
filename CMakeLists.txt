@@ -21,12 +21,15 @@ add_executable(softrend-c
     src/app/shaders/shd_suzanne.c
     src/app/shaders/shd_window.c
     src/app/shaders/shd_grass.c
+    src/app/shaders/shd_depth.c
+    src/app/shaders/shd_shadowmap.c
 
     src/app/scenes/scn_mainmenu.c
     src/app/scenes/scn_triangle.c
     src/app/scenes/scn_cube.c
     src/app/scenes/scn_suzanne.c
     src/app/scenes/scn_alphablending.c
+    src/app/scenes/scn_shadowmapping.c
 
     src/renderer/renderer.c
     src/renderer/shader.c

@@ -32,7 +32,7 @@ void scn_cube_start(scn_cube_data_ *data)
 
     u32 scale = 2;
     renderer_set_downscale_factor(&data->app->renderer, scale);
-    rendertarget_ rt = {};
+    rendertarget_ rt = renderer_create_rendertarget(&data->app->renderer, 0, 0, 320, 240);
     rt.w = data->app->window->width  / scale;
     rt.h = data->app->window->height / scale;
     renderer_set_rendertarget(&data->app->renderer, rt);
