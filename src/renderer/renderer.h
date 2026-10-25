@@ -45,7 +45,6 @@ void renderer_draw(renderer_ *renderer, mesh_* mesh, shader_ *shader);
 void renderer_end_draw(renderer_ *renderer);
 
 rendertarget_ renderer_create_rendertarget(renderer_ *renderer, u32 x, u32 y, u32 w, u32 h);
-
 void renderer_set_renderpass(renderer_ *renderer, u32 pass_type);
 void renderer_set_rendertarget(renderer_ *renderer, rendertarget_ target);
 void renderer_set_viewport(renderer_ *renderer, u32 x, u32 y, u32 w, u32 h);

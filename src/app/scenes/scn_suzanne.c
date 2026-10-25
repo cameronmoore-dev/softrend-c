@@ -49,6 +49,13 @@ void scn_suzanne_start(scn_suzanne_data_ *data)
     data->shader_data.normal_map = &data->normal_map;
 
     data->shader_data.light_dir = (vec3f){ .x = 0.0f, .y = 0.0f, .z = -1.0f };
+
+    data->ssao_data.radius  = 8.0f;
+    data->ssao_data.samples = 32;
+    data->ssao_data.do_blur = false;
+    ssao_init(&data->app->renderer.rendertarget, &data->ssao_data);
+
+    data->ssao = false;
 }
 
 void scn_suzanne_process_events(scn_suzanne_data_ *data)
@@ -59,6 +66,16 @@ void scn_suzanne_process_events(scn_suzanne_data_ *data)
     if (is_key_pressed(input, ESC))
     {
         scn_suzanne_shutdown(data);
+    }
+
+    else if (is_key_pressed(input, NUM1))
+    {
+         data->ssao = !data->ssao;
+    }
+
+    else if (is_key_pressed(input, NUM2))
+    {
+        data->ssao_data.do_blur = !data->ssao_data.do_blur;
     }
 
     camera_update_position(&data->camera, input, *data->delta_time);
@@ -76,6 +93,10 @@ void scn_suzanne_render(scn_suzanne_data_ *data)
 {
     renderer_clear(&data->app->renderer);
     renderer_draw(&data->app->renderer, &data->mesh, &data->shader);
+
+    if (data->ssao)
+        ssao_apply(&data->app->renderer.rendertarget, &data->ssao_data);
+
     renderer_end_draw(&data->app->renderer);
     window_swap_buffers(data->app->window);
 }
@@ -84,6 +105,7 @@ void scn_suzanne_shutdown(scn_suzanne_data_ *data)
 {
     image_free(&data->albedo);
     mesh_free(&data->mesh);
+    ssao_close(&data->ssao_data);
 
     scene_remove(&data->app->scene_manager);
 }

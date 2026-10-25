@@ -2,6 +2,7 @@
 
 #include "app/resource/image.h"
 #include "app/resource/mesh.h"
+#include "app/shaders/shd_fxaa.h"
 
 void scn_cube_init(scene_funcs_ *funcs)
 {
@@ -20,7 +21,7 @@ void scn_cube_start(scn_cube_data_ *data)
     );
 
     data->albedo = image_load("./res/textures/texture_dirtcube.tga");
-    bilinear_filter(&data->albedo);
+    // bilinear_filter(&data->albedo);
     data->cube = mesh_load("./res/models/cube.obj");
     data->camera = camera_init();
     data->model = mat4_identity();
@@ -29,6 +30,8 @@ void scn_cube_start(scn_cube_data_ *data)
     data->shader_data.view = &data->camera.view;
     data->shader_data.model = &data->model;
     data->shader_data.albedo = &data->albedo;
+
+    data->pause = false;
 
     u32 scale = 2;
     renderer_set_downscale_factor(&data->app->renderer, scale);
@@ -46,6 +49,16 @@ void scn_cube_process_events(scn_cube_data_ *data)
         return;
     }
 
+    else if (is_key_pressed(&data->app->window->input, NUM1))
+    {
+        data->pause = !data->pause;
+    }
+
+    else if (is_key_pressed(&data->app->window->input, NUM2))
+    {
+        data->fxaa = !data->fxaa;
+    }
+
     camera_update_position(&data->camera, &data->app->window->input, *data->delta_time);
     camera_update_rotation(&data->camera, &data->app->window->input, *data->delta_time);
     camera_update_view(&data->camera);
@@ -53,6 +66,11 @@ void scn_cube_process_events(scn_cube_data_ *data)
 
 void scn_cube_update(scn_cube_data_ *data)
 {
+    if (data->pause)
+    {
+        return;
+    }
+
     static f32 angle;
     angle += 40.0f * (*data->delta_time);
     if (angle > 360.f) angle -= 360.0f;
@@ -72,8 +90,11 @@ void scn_cube_render(scn_cube_data_ *data)
 {
     renderer_clear(&data->app->renderer);
     renderer_draw(&data->app->renderer, &data->cube, &data->shader);
+
+    if (data->fxaa)
+        fxaa_apply(&data->app->renderer.rendertarget);
+
     renderer_end_draw(&data->app->renderer);
-    
     window_swap_buffers(data->app->window);
 }
 

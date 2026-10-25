@@ -23,6 +23,8 @@ add_executable(softrend-c
     src/app/shaders/shd_grass.c
     src/app/shaders/shd_depth.c
     src/app/shaders/shd_shadowmap.c
+    src/app/shaders/shd_fxaa.c
+    src/app/shaders/shd_ssao.c
 
     src/app/scenes/scn_mainmenu.c
     src/app/scenes/scn_triangle.c

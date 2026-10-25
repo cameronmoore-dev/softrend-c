@@ -3,6 +3,7 @@
 #include "app/app_context.h"
 #include "app/camera.h"
 #include "app/shaders/shd_suzanne.h"
+#include "app/shaders/shd_ssao.h"
 
 typedef struct scn_suzanne_data
 {
@@ -18,6 +19,9 @@ typedef struct scn_suzanne_data
     mat4 model;
 
     f64 *delta_time;
+
+    ssao_data_ ssao_data;
+    bool ssao;
 } scn_suzanne_data_;
 
 void scn_suzanne_init(scene_funcs_ *funcs);

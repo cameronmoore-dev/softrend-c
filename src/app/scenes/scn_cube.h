@@ -18,6 +18,9 @@ typedef struct scn_cube_data
     mat4 model;
 
     f64 *delta_time;
+
+    bool pause;
+    bool fxaa;
 } scn_cube_data_;
 
 void scn_cube_init(scene_funcs_ *funcs);

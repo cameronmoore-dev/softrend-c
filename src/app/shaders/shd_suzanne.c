@@ -7,6 +7,7 @@
 
 #define SHADE_FLAT 0
 #define NORMAL_MAP 1
+#define TEST_SSAO  0
 
 f32 max(f32 a, f32 b)
 {
@@ -40,6 +41,7 @@ vertex_ suzanne_vertex_shader(suzanne_shader_data_ *data, vertex_ *vertex)
 
 bool suzanne_fragment_shader(suzanne_shader_data_ *data, vec3f *point, vertex_* mesh, colour_* colour)
 {
+#if !TEST_SSAO
     vec3f light_colour = vec3(1.0f);
     vec3f ambient = vec3(0.33f);
 
@@ -70,6 +72,9 @@ bool suzanne_fragment_shader(suzanne_shader_data_ *data, vec3f *point, vertex_* 
     vec4f final = vec4_mul(&shading, &albedo);
 
     *colour = rgba_to_packed(&final);
+#else
+    colour->packed = 0xFFFFFFFF;
+#endif
     return true;
 }
 
