@@ -167,7 +167,7 @@ window_ *window_create(const char *title, u32 width, u32 height)
     window->platform->gid = xcb_generate_id(window->platform->connection);
     xcb_create_gc(window->platform->connection, window->platform->gid, window->platform->window, 0, NULL);
 
-    // XFixesHideCursor(window->platform->display, window->platform->window);
+    XFixesHideCursor(window->platform->display, window->platform->window);
 
     xcb_map_window(window->platform->connection, window->platform->window);
     xcb_flush(window->platform->connection);
@@ -255,7 +255,7 @@ void window_pump_messages(window_ *window)
 
             case XCB_FOCUS_IN:
             {
-                // XFixesHideCursor(window->platform->display, window->platform->window);
+                XFixesHideCursor(window->platform->display, window->platform->window);
 
                 u32 cx = window->width / 2;
                 u32 cy = window->height / 2;
